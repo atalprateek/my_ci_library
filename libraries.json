@@ -10,5 +10,11 @@
         "path": "CI_Debugger",
         "version": "v0.0001",
         "url": "https://raw.githubusercontent.com/atalprateek/my_ci_library/main/CI_Debugger/Debugger.php"
+    },
+    {
+        "name": "Paging",
+        "path": "Paging",
+        "version": "v0.0001",
+        "url": "https://raw.githubusercontent.com/atalprateek/my_ci_library/main/Paging/Paging.php"
     }
 ]
