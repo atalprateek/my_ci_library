@@ -1,5 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+/*
+Name : Paging
+Description : Custom Pagination
+Version : v1.0
+*/
+
 
 class Paging {
 	protected $CI;
