@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter
-Version : v0.0004
+Version : v0.0005
 */
 class Debugger {
     var $ci;
@@ -101,7 +101,8 @@ class Debugger {
         $style.='z-index: 9998;';
         $style.='}';
         $style.='#debugger-list-container ul{';
-        $style.='padding-top: 5px 0;';
+        $style.='list-style:none;';
+        $style.='padding:5px 0;';
         $style.='}';
         $style.='#debugger-list-container ul li{';
         $style.='padding: 5px 10px;';
@@ -139,6 +140,8 @@ class Debugger {
         $script='<script>
             function toggleBottomBar() {
                 var bottomBar = document.getElementById("debugger-bottom-bar");
+                var listContainer = document.getElementById("debugger-list-container");
+                listContainer.style.display = "none";
                 if (bottomBar.style.display === "none") {
                     bottomBar.style.display = "block";
                     document.getElementById("debugger-toggle-button").innerHTML="&#11206";
