@@ -3,12 +3,13 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter
-Version : v0.0005
+Version : v0.0006
 */
 class Debugger {
     var $ci;
     var $debug=FALSE;
-
+    var $var_values=array();
+    
     function __construct() {
         $this->ci =& get_instance();
         $this->ci->benchmark->mark("default_start");
@@ -38,6 +39,14 @@ class Debugger {
         return round($usage, $precision) . ' ' . $units[$pow];
     }
 
+    function trackValue($name, $value, $line_number) {
+        $this->var_values[] = array('name' => $name, 'value' => $value, 'line' => $line_number);
+    }
+    
+    function viewvariables() {
+        return $this->var_values;
+    }
+    
     function printdata($array,$pre=true,$die=false) {
         if($pre===true){ echo "<pre>"; }
         print_r($array);
