@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter
-Version : v0.0007
+Version : v0.0008
 */
 class Debugger {
     var $ci;
@@ -50,19 +50,17 @@ class Debugger {
                 $result=$this->var_values;
             }
             elseif(is_array($array)){
-                $vars=array_column($this->var_values,'name');
-                foreach($array as $variable){
-                    $index=array_search($variable,$vars);
-                    if($index!==false){
-                        $result[]=$this->var_values[$index];
+                foreach($this->var_values as $values){
+                    if(in_array($values['name'],$array)){
+                        $result[]=$values;
                     }
                 }
             }
             elseif(!is_array($array)){
-                $vars=array_column($this->var_values,'name');
-                $index=array_search($array,$vars);
-                if($index!==false){
-                    $result[]=$this->var_values[$index];
+                foreach($this->var_values as $values){
+                    if($values['name']==$array){
+                        $result[]=$values;
+                    }
                 }
             }
         }
