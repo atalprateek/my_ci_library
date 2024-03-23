@@ -43,8 +43,30 @@ class Debugger {
         $this->var_values[] = array('name' => $name, 'value' => $value, 'line' => $line_number);
     }
     
-    function viewvariables() {
-        return $this->var_values;
+    function viewvariables($array=array()) {
+        $result=array();
+        if(!empty($this->var_values)){
+            if(empty($array)){
+                $result=$this->var_values;
+            }
+            elseif(is_array($array)){
+                $vars=array_column($this->var_values,'name');
+                foreach($array as $variable){
+                    $index=array_search($variable,$vars);
+                    if($index!==false){
+                        $result[]=$this->var_values[$index];
+                    }
+                }
+            }
+            elseif(!is_array($array)){
+                $vars=array_column($this->var_values,'name');
+                $index=array_search($array,$vars);
+                if($index!==false){
+                    $result[]=$this->var_values[$index];
+                }
+            }
+        }
+        return $result;
     }
     
     function printdata($array,$pre=true,$die=false) {
