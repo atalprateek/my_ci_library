@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter
-Version : v0.0010
+Version : v0.0011
 */
 class Debugger {
     var $ci;
@@ -160,6 +160,7 @@ class Debugger {
         $bottombar.='<span id="debugger-page-load-time"></span>';
         $bottombar.='<span><button id="debugger-view-list-btn">View Resources</button></span>';
         $bottombar.='<a href="#" onClick="window.location.reload(); return false;">&#11119 Reload Page</a>';
+        $bottombar.='<a href="'.base_url('pull.php').'">&#8681; Pull Files</a>';
         //$bottombar.='<a href="#" onClick="clearCacheAndReload(); return false;">&#11119 Clear Cache &amp; Reload</a>';
         $bottombar.='</div>';
         
