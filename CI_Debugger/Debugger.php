@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter
-Version : v0.0003
+Version : v0.0004
 */
 class Debugger {
     var $ci;
@@ -48,7 +48,7 @@ class Debugger {
     function getdebuggerbarstyle() {
         $style='<style>';
         $style.='body{';
-        $style.='padding-bottom:50px;';
+        $style.='padding-bottom:60px;';
         $style.='}';
         $style.='#debugger-toggle-button{';
         $style.='position: fixed;';
@@ -74,6 +74,40 @@ class Debugger {
         $style.='#debugger-bottom-bar *{';
         $style.='margin:0 10px;';
         $style.='}';
+        $style.='#debugger-view-list-btn{';
+        $style.='display: inline-block;';
+        $style.='padding: 0px 5px;';
+        $style.='font-size: 12px;';
+        $style.='font-weight: 500;';
+        $style.='text-align: center;';
+        $style.='text-decoration: none;';
+        $style.='color: #ffffff;';
+        $style.='background-color: #007bff;';
+        $style.='border: 2px solid #007bff;';
+        $style.='border-radius: 5px;';
+        $style.='cursor: pointer;';
+        $style.='}';
+        $style.='#debugger-list-container {';
+        $style.='position: fixed;';
+        $style.='bottom: 40px;';
+        $style.='max-height: 150px;';
+        $style.='overflow:auto;';
+        $style.='left: 0;';
+        $style.='width: 100%;';
+        $style.='background-color: #e9e9e9;';
+        $style.='border-top: 1px solid #ccc;';
+        $style.='padding: 0 0 10px 0;';
+        $style.='display: none;';
+        $style.='z-index: 9998;';
+        $style.='}';
+        $style.='#debugger-list-container ul{';
+        $style.='padding-top: 5px 0;';
+        $style.='}';
+        $style.='#debugger-list-container ul li{';
+        $style.='padding: 5px 10px;';
+        $style.='background-color: #e9e9e9;';
+        $style.='border-bottom: 1px solid #cdcdcd;';
+        $style.='}';
         $style.='</style>';
         echo $style;
     }
@@ -87,8 +121,15 @@ class Debugger {
         $bottombar.='<div  id="debugger-bottom-bar">';
         $bottombar.='<span>Memory Usage: '.$this->getmemoryusage().'</span>';
         $bottombar.='<span>Execution Time: '.$this->getelapsedtime().' Seconds</span>';
+        $bottombar.='<span id="debugger-page-load-time"></span>';
+        $bottombar.='<span><button id="debugger-view-list-btn">View Resources</button></span>';
         $bottombar.='<a href="#" onClick="window.location.reload(); return false;">&#11119 Reload Page</a>';
+        //$bottombar.='<a href="#" onClick="clearCacheAndReload(); return false;">&#11119 Clear Cache &amp; Reload</a>';
         $bottombar.='</div>';
+        
+        $listdiv='<div id="debugger-list-container" style="display:none;"></div>';
+        
+        echo $listdiv;
         echo $bottombar;
         
         $this->getdebuggerbarscript();
@@ -121,6 +162,47 @@ class Debugger {
                         }
                     }';
         }
+        
+        $script.="window.addEventListener('load', function() {
+                        var resources = window.performance.getEntriesByType('resource');
+                        var listContainer = document.getElementById('debugger-list-container');
+                        var ul = document.createElement('ul');
+
+                        resources.forEach(function(resource) {
+                            var li = document.createElement('li');
+                            li.textContent = resource.name+' : '+resource.duration+' milliseconds';
+                            ul.appendChild(li);
+                        });
+                        listContainer.appendChild(ul);
+                        
+                        var loadTime = window.performance.timing.domContentLoadedEventEnd - window.performance.timing.navigationStart;
+                        if(loadTime<1000){
+                            var plTime=loadTime+' milliseconds';
+                        }
+                        else{
+                            var plTime=(loadTime/1000)+' seconds';
+                        }
+                        document.getElementById('debugger-page-load-time').innerText='Page Load Time: '+plTime;
+                    });";
+        
+        $script.="document.addEventListener('DOMContentLoaded', function() {
+                    var listContainer = document.getElementById('debugger-list-container');
+                    var viewListBtn = document.getElementById('debugger-view-list-btn');
+
+                    viewListBtn.addEventListener('click', function() {
+                      if (listContainer.style.display === 'none') {
+                        listContainer.style.display = 'block';
+                      } else {
+                        listContainer.style.display = 'none';
+                      }
+                    });
+                    });";
+        
+        $script.="function clearCacheAndReload() {
+                    document.cookie = 'no-cache=' + Date.now() + '; path=/';
+                    location.reload();
+                }";
+        
         $script.='</script>';
         echo $script;
     }
