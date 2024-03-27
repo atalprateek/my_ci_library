@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter
-Version : v0.0012
+Version : v0.0013
 */
 class Debugger {
     var $ci;
@@ -69,7 +69,7 @@ class Debugger {
         return $result;
     }
     
-    function printdata($array,$pre=true,$die=false) {
+    function printdata($array,$die=false,$pre=true) {
         if($pre===true){ echo "<pre>"; }
         print_r($array);
         if($pre===true){ echo "</pre>"; }
@@ -145,6 +145,12 @@ class Debugger {
         $style.='border-bottom: 1px solid #cdcdcd;';
         $style.='}';
         $style.='</style>';
+        $style.='<style type="text/css" media="print">';
+        $style.='#debugger-bottom-bar,';
+        $style.='#debugger-toggle-button{';
+        $style.='display:none;';
+        $style.='}';
+        $style.='</style>';
         echo $style;
     }
 
@@ -161,6 +167,7 @@ class Debugger {
         $bottombar.='<span><button id="debugger-view-list-btn">View Resources</button></span>';
         $bottombar.='<a href="#" onClick="window.location.reload(); return false;">&#11119 Reload Page</a>';
         $bottombar.='<a href="'.base_url('pull.php').'" target="_blank">&#8681; Pull Files</a>';
+        $bottombar.='<a href="#" onClick="window.print(); return false;">&#9113; Print Page</a>';
         //$bottombar.='<a href="#" onClick="clearCacheAndReload(); return false;">&#11119 Clear Cache &amp; Reload</a>';
         $bottombar.='</div>';
         
