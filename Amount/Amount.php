@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Amount
-Description : Debugger for Codeigniter
+Description : Amount Operations
 Version : v1.01
 */
 class Amount {
