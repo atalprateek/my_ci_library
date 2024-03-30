@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter
-Version : v0.0013
+Version : v0.0014
 */
 class Debugger {
     var $ci;
@@ -23,7 +23,9 @@ class Debugger {
         if($end=="default_end"){
             $this->ci->benchmark->mark("default_end");
         }
-        return $this->ci->benchmark->elapsed_time($start, $end);
+        $time=$this->ci->benchmark->elapsed_time($start, $end);
+        $time=$time<1?($time*1000).' millseconds':$time.' seconds';
+        return $time;
     }
 
     function getmemoryusage($precision=2) {
@@ -162,7 +164,7 @@ class Debugger {
         $bottombar='<a href="#" onClick="return toggleBottomBar()" id="debugger-toggle-button">&#11206</a>';
         $bottombar.='<div  id="debugger-bottom-bar">';
         $bottombar.='<span>Memory Usage: '.$this->getmemoryusage().'</span>';
-        $bottombar.='<span>Execution Time: '.$this->getelapsedtime().' Seconds</span>';
+        $bottombar.='<span>Execution Time: '.$this->getelapsedtime().'</span>';
         $bottombar.='<span id="debugger-page-load-time"></span>';
         $bottombar.='<span><button id="debugger-view-list-btn">View Resources</button></span>';
         $bottombar.='<a href="#" onClick="window.location.reload(); return false;">&#11119 Reload Page</a>';
