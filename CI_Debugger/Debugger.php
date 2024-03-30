@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter
-Version : v0.0014
+Version : v0.0015
 */
 class Debugger {
     var $ci;
@@ -183,6 +183,7 @@ class Debugger {
 
     function getdebuggerbarscript() {
         $script='<script>
+            var listContainer = document.getElementById("debugger-list-container");
             function toggleBottomBar() {
                 var bottomBar = document.getElementById("debugger-bottom-bar");
                 var listContainer = document.getElementById("debugger-list-container");
@@ -213,7 +214,6 @@ class Debugger {
         
         $script.="window.addEventListener('load', function() {
                         var resources = window.performance.getEntriesByType('resource');
-                        var listContainer = document.getElementById('debugger-list-container');
                         var ul = document.createElement('ul');
 
                         resources.forEach(function(resource) {
@@ -222,7 +222,7 @@ class Debugger {
                             ul.appendChild(li);
                         });
                         listContainer.appendChild(ul);
-                        
+                        countResources();
                         var loadTime = window.performance.timing.domContentLoadedEventEnd - window.performance.timing.navigationStart;
                         if(loadTime<1000){
                             var plTime=loadTime+' milliseconds';
@@ -234,7 +234,6 @@ class Debugger {
                     });";
         
         $script.="document.addEventListener('DOMContentLoaded', function() {
-                    var listContainer = document.getElementById('debugger-list-container');
                     var viewListBtn = document.getElementById('debugger-view-list-btn');
 
                     viewListBtn.addEventListener('click', function() {
@@ -250,6 +249,40 @@ class Debugger {
                     document.cookie = 'no-cache=' + Date.now() + '; path=/';
                     location.reload();
                 }";
+        
+        $script.="function countResources() {
+                    var ul = listContainer.querySelector('ul');
+                    var liCount=ul.getElementsByTagName('li').length;
+                    document.getElementById('debugger-view-list-btn').innerText='View Resources ('+liCount+')';
+                }";
+        
+        $script.="
+            // Attach a function to the ajaxSend event handler
+            $(document).ajaxSend(function(event, jqXHR, ajaxOptions) {
+                var li = document.createElement('li');
+                li.textContent = 'AJAX request started:'+ajaxOptions.type+' : '+ajaxOptions.url;
+                var ul = listContainer.querySelector('ul');
+                ul.appendChild(li);
+                countResources();
+            });
+
+            // Attach a function to the ajaxComplete event handler
+            $(document).ajaxComplete(function(event, jqXHR, ajaxOptions) {
+                var li = document.createElement('li');
+                li.textContent = 'AJAX request completed:'+ajaxOptions.type+' : '+ajaxOptions.url;
+                var ul = listContainer.querySelector('ul');
+                ul.appendChild(li);
+                countResources();
+            });
+
+            // Attach a function to the ajaxError event handler
+            $(document).ajaxError(function(event, jqXHR, ajaxOptions, thrownError) {
+                var li = document.createElement('li');
+                li.textContent = 'AJAX request failed:'+ajaxOptions.type+' : '+ajaxOptions.url+' : '+thrownError;
+                var ul = listContainer.querySelector('ul');
+                ul.appendChild(li);
+                countResources();
+            });";
         
         $script.='</script>';
         echo $script;
