@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter
-Version : v0.0015
+Version : v0.0016
 */
 class Debugger {
     var $ci;
@@ -290,7 +290,7 @@ class Debugger {
 
     function checkDebugStatus() {
         $status=FALSE;
-        if($this->ci->input->is_ajax_request()){
+        if($this->ci->input->is_ajax_request() || $_SERVER['HTTP_API_HEADER']=='API Tester'){
             $status=FALSE;
         }
         else{
