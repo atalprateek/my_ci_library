@@ -3,11 +3,12 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter
-Version : v0.0016
+Version : v0.0017
 */
 class Debugger {
     var $ci;
     var $debug=FALSE;
+    var $default=TRUE;
     var $var_values=array();
     
     function __construct() {
@@ -288,9 +289,14 @@ class Debugger {
         echo $script;
     }
 
+    function updateDefaultStatus($status=false) {
+        $this->default=$status;
+    }
+
     function checkDebugStatus() {
         $status=FALSE;
-        if($this->ci->input->is_ajax_request() || $_SERVER['HTTP_API_HEADER']=='API Tester'){
+        if($this->ci->input->is_ajax_request() || 
+           (isset($_SERVER['HTTP_API_HEADER']) && $_SERVER['HTTP_API_HEADER']=='API Tester')){
             $status=FALSE;
         }
         else{
@@ -305,7 +311,7 @@ class Debugger {
     }
 
     function __destruct() {
-        if($this->checkDebugStatus()){
+        if($this->checkDebugStatus() && $this->default===TRUE){
             $this->getdebuggerbar();
         }
     }
