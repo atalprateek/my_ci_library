@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Amount
 Description : Amount Operations
-Version : v1.01
+Version : v1.10
 */
 class Amount {
 	private $ones=array("","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
@@ -15,120 +15,124 @@ class Amount {
 	private $toreturn="";
 	private $inwords="";
 	private $inhundred="";
-	function get_hundred($number){
-
-		$number=intval($number,10);
-        $rem=$number%100;
-		$value=floor($number/100);
-		if($number>=100){
-			if($value<10){
-				$this->inhundred.= " ".$this->ones[$value]." Hundred";
-			}
-			
-		}
-		if($rem!=0 && $rem<20){
-			$this->inhundred.= " ".$this->ones[$rem];
-		}
-		if($rem==20)
-		{
-			$this->inhundred.= " ".$this->tens[2];
-		}
-		if($rem!=0 && $rem>20){
-			$rem2=$rem%10;
-			$value2=floor($rem/10);
-			$return =" ".$this->tens[$value2];
-			if($rem2!=0){
-				$return.=" ".$this->ones[$rem2];
-			}
-			$this->inhundred.= $return;
-		}
-		return $this->inhundred;
-	}
-	function get_thousand($number){
-		$number=intval($number,10);
-        $rem=$number%1000;
-		$value=floor($number/1000);
-		if($number>=1000){
-			if($value<20){
-				$this->inwords= " ".$this->ones[$value]." Thousand";
-			}
-			elseif($value>=20 && $value<100){
-				$rem2=$value%10;
-				$value2=floor($value/10);
-				$return = $this->tens[$value2];
-				if($rem2!=0){
-					$return.=" ".$this->ones[$rem2]." Thousand";
-				}
-				else{
-					$return.=" Thousand";
-				}
-				$this->inwords= $return;
-			}
-		}
-		else{
-			$this->inwords='';
-		}
-		return $this->inwords;
-	}
+    
+    function get_units($number){
+        $units='';
+        if($number>9){
+            $number=substr($number,-1);
+        }
+        $number=intval($number,10);
+        $units=$this->ones[$number];
+        return $units;
+    }
+    
+    function get_tens($number){
+        $tens='';
+        if($number>99){
+            $number=substr($number,-2);
+        }
+        $number=intval($number,10);
+        if($number<20){
+            $tens=$this->ones[$number];
+        }
+        else{
+            $units=$this->get_units($number);
+            $number=floor($number/10);
+            $tens=$this->tens[$number];
+            $tens.=' '.$units;
+        }
+        return $tens;
+    }
+    
+	function get_hundreds($number){
+        $hundreds='';
+        if($number>999){
+            $number=substr($number,-3);
+        }
+        $number=intval($number,10);
+        if($number>99){
+            $number=floor($number/100);
+            $hundreds=$this->ones[$number];
+            $hundreds.=' Hundred';
+        }
+        return $hundreds;
+    }
+    
+	function get_thousands($number){
+        $thousands='';
+        if($number>99999){
+            $number=substr($number,-5);
+        }
+        $number=intval($number,10);
+        if($number>999){
+            $number=floor($number/1000);
+            $thousands=$this->get_tens($number);
+            $thousands.=' Thousand';
+        }
+        return $thousands;
+    }
+    
 	function get_lakhs($number){
-		$number=intval($number,10);
-        $rem=$number%100000;
-		$value=floor($number/100000);
-		if($number>=100000){
-			if($value<20){
-				$this->inwords= " ".$this->ones[$value]." Lakh";
-			}
-			elseif($value>=20 && $value<100){
-				$rem2=$value%10;
-				$value2=$value/10;
-				$return = $this->tens[$value2];
-				if($rem2!=0){
-					$return.=" ".$this->ones[$rem2]." Lakh";
-				}
-				else{
-					$return.=" Lakh";
-				}
-				$this->inwords= $return;
-			}
-		}
-		else{
-			$this->inwords='';
-		}
-		return $this->inwords;
-	}
-	function get_crore($number){
-		$number=intval($number,10);
-        $rem=$number%10000000;
-		$value=floor($number/10000000);
-		if($number>=10000000){
-			if($value<20){
-				$this->inwords= " ".$this->ones[$value]." Crore";
-			}
-			elseif($value>=20 && $value<100){
-				$rem2=$value%10;
-				$value2=$value/10;
-				$return = $this->tens[$value2];
-				if($rem2!=0){
-					$return.=" ".$this->ones[$rem2]." Crore";
-				}
-				else{
-					$return.=" Crore";
-				}
-				$this->inwords= $return;
-			}
-		}
-		return $this->inwords;
-	}
-
+        $lakhs='';
+        if($number>9999999){
+            $number=substr($number,-7);
+        }
+        $number=intval($number,10);
+        if($number>99999){
+            $number=floor($number/100000);
+            $lakhs=$this->get_tens($number);
+            $lakhs.=' Lakh';
+        }
+        return $lakhs;
+    }
+    
+	function get_crores($number){
+        $crores='';
+        if($number>999999999){
+            $number=substr($number,-9);
+        }
+        $number=intval($number,10);
+        if($number>9999999){
+            $number=floor($number/10000000);
+            $crores=$this->get_tens($number);
+            $crores.=' Crore';
+        }
+        return $crores;
+    }
+    
 	function to_words($number){
         $number=abs($number);
+        $words='';
 		if($number<1000000000){
-			$this->words.= $this->get_crore($number)." ".$this->get_lakhs($number%10000000)." ";
-			$this->words.= $this->get_thousand($number%100000)." ".$this->get_hundred($number%1000);
+			$words.= $this->get_crores($number)." ".$this->get_lakhs($number)." ";
+			$words.= $this->get_thousands($number)." ".$this->get_hundreds($number)." ".$this->get_tens($number);
 		}
-		$this->toreturn=$this->words;
-		$this->words=""; $this->inwords="";$this->inhundred="";
-		return $this->toreturn;
+		return $words;
+	}
+	
+	function decimal_to_words($number,$suffix=array()){
+        $number=abs($number);
+        $number=round($number,2);
+        $array=explode('.',$number);
+        $words=$this->to_words($array[0]);
+        if(empty($suffix) && !empty($array[1])){
+            $words.=' point ';
+        }
+        elseif(!empty($suffix[0])){
+            $words.=' '.$suffix[0].' ';
+        }
+        if(!empty($array[1])){
+            if($array[1]>0){
+                if(strlen($array[1])<2){
+                    $array[1].='0';
+                }
+                $words.=$this->get_tens($array[1]);
+                if(!empty($suffix[1])){
+                    $words.=' '.$suffix[1].' ';
+                }
+            }
+        }
+		return $words;
 	}
 	
 	function toDecimal($number,$decimal=true){
