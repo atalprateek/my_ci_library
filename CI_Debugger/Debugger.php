@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter
-Version : v0.0018
+Version : v0.0019
 */
 class Debugger {
     var $ci;
@@ -231,8 +231,36 @@ class Debugger {
                         else{
                             var plTime=(loadTime/1000)+' seconds';
                         }
-                        document.getElementById('debugger-page-load-time').innerText='Page Load Time: '+plTime;
-                    });";
+                        document.getElementById('debugger-page-load-time').innerText='Page Load Time: '+plTime;";
+            $script.="
+                        // Attach a function to the ajaxSend event handler
+                        $(document).ajaxSend(function(event, jqXHR, ajaxOptions) {
+                            var li = document.createElement('li');
+                            li.textContent = 'AJAX request started:'+ajaxOptions.type+' : '+ajaxOptions.url;
+                            var ul = listContainer.querySelector('ul');
+                            ul.appendChild(li);
+                            countResources();
+                        });
+
+                        // Attach a function to the ajaxComplete event handler
+                        $(document).ajaxComplete(function(event, jqXHR, ajaxOptions) {
+                            var li = document.createElement('li');
+                            li.textContent = 'AJAX request completed:'+ajaxOptions.type+' : '+ajaxOptions.url;
+                            var ul = listContainer.querySelector('ul');
+                            ul.appendChild(li);
+                            countResources();
+                        });
+
+                        // Attach a function to the ajaxError event handler
+                        $(document).ajaxError(function(event, jqXHR, ajaxOptions, thrownError) {
+                            var li = document.createElement('li');
+                            li.textContent = 'AJAX request failed:'+ajaxOptions.type+' : '+ajaxOptions.url+' : '+thrownError;
+                            var ul = listContainer.querySelector('ul');
+                            ul.appendChild(li);
+                            countResources();
+                        });";
+        
+        $script.="});";
         
         $script.="document.addEventListener('DOMContentLoaded', function() {
                     var viewListBtn = document.getElementById('debugger-view-list-btn');
@@ -244,7 +272,7 @@ class Debugger {
                         listContainer.style.display = 'none';
                       }
                     });
-                    });";
+                });";
         
         $script.="function clearCacheAndReload() {
                     document.cookie = 'no-cache=' + Date.now() + '; path=/';
@@ -256,34 +284,6 @@ class Debugger {
                     var liCount=ul.getElementsByTagName('li').length;
                     document.getElementById('debugger-view-list-btn').innerText='View Resources ('+liCount+')';
                 }";
-        
-        $script.="
-            // Attach a function to the ajaxSend event handler
-            $(document).ajaxSend(function(event, jqXHR, ajaxOptions) {
-                var li = document.createElement('li');
-                li.textContent = 'AJAX request started:'+ajaxOptions.type+' : '+ajaxOptions.url;
-                var ul = listContainer.querySelector('ul');
-                ul.appendChild(li);
-                countResources();
-            });
-
-            // Attach a function to the ajaxComplete event handler
-            $(document).ajaxComplete(function(event, jqXHR, ajaxOptions) {
-                var li = document.createElement('li');
-                li.textContent = 'AJAX request completed:'+ajaxOptions.type+' : '+ajaxOptions.url;
-                var ul = listContainer.querySelector('ul');
-                ul.appendChild(li);
-                countResources();
-            });
-
-            // Attach a function to the ajaxError event handler
-            $(document).ajaxError(function(event, jqXHR, ajaxOptions, thrownError) {
-                var li = document.createElement('li');
-                li.textContent = 'AJAX request failed:'+ajaxOptions.type+' : '+ajaxOptions.url+' : '+thrownError;
-                var ul = listContainer.querySelector('ul');
-                ul.appendChild(li);
-                countResources();
-            });";
         
         $script.='</script>';
         echo $script;
