@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter
-Version : v0.0017
+Version : v0.0018
 */
 class Debugger {
     var $ci;
@@ -300,10 +300,10 @@ class Debugger {
             $status=FALSE;
         }
         else{
-            if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']=='localhost'){
+            if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']=='localhost' && $this->debug === TRUE){
                 $status=TRUE;
             }
-            if($this->ci->input->get('debug')=='debugbar' && $this->debug==TRUE){
+            if($this->ci->input->get('debug')=='debugbar' && $this->debug===TRUE){
                 $status=TRUE;
             }
         }
