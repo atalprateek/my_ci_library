@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Paging
 Description : Custom Pagination
-Version : v1.01
+Version : v1.02
 */
 
 
@@ -181,7 +181,7 @@ class Paging {
             if($this->page_size && $this->total_data>10){
                 $page_size=form_dropdown('page_size',$this->sizes,$this->count,array('class'=>'form-control radius-0 page_size','style'=>"position:absolute;width:70px;"));
             }
-            $pagination='<div class="pagination-div" style="height:60px;padding:10px 0;"><div>'.$showing.'</div>'.$page_size.$pagination.'</div>';
+            $pagination='<div class="pagination-div" style="min-height:60px;padding:10px 0;"><div>'.$showing.'</div>'.$page_size.$pagination.'</div>';
 			return $pagination;
 		}
 		else{
