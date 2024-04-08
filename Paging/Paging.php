@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Paging
 Description : Custom Pagination
-Version : v1.0
+Version : v1.01
 */
 
 
@@ -44,7 +44,7 @@ class Paging {
 	
 	protected $page_size=false;
     
-    protected $sizes=array(10=>10,25=>25,50=>50,100=>100);
+    protected $sizes=array(10=>10,25=>25,50=>50,100=>100,'All'=>'All');
 	
 	protected $config=false;
 
@@ -100,12 +100,17 @@ class Paging {
 		$offset=($this->page-1);
         $pagedata=array();
         $this->total_data=!empty($array)?count($array):0;
-        if(!empty($array)){
-            $data = array_chunk($array,$this->count);
-            $this->pages=ceil($this->total_data/$this->count);
-            if(isset($data[$offset])){
-                $pagedata=$data[$offset];
+        if(is_numeric($this->count)){
+            if(!empty($array)){
+                $data = array_chunk($array,$this->count);
+                $this->pages=ceil($this->total_data/$this->count);
+                if(isset($data[$offset])){
+                    $pagedata=$data[$offset];
+                }
             }
+        }
+        elseif($this->count=='All'){
+            $pagedata=$array;
         }
         $result=['pagedata'=>$pagedata];
         $result['pagination']=$this->pagination();
@@ -162,16 +167,21 @@ class Paging {
 				}
 			}
             $showing="Showing ";
-            $offset=($this->page-1)*$this->count;
-            $from=!empty($this->total_data)?($offset+1):0;
-            $to=(($offset+$this->count)>$this->total_data)?$this->total_data:($offset+$this->count);
-            $showing.=$from.' to '.$to.' of '.$this->total_data;
+            if(is_numeric($this->count)){
+                $offset=($this->page-1)*$this->count;
+                $from=!empty($this->total_data)?($offset+1):0;
+                $to=(($offset+$this->count)>$this->total_data)?$this->total_data:($offset+$this->count);
+                $showing.=$from.' to '.$to.' of '.$this->total_data;
+            }
+            elseif($this->count=='All'){
+                $showing.='All';
+            }
             $showing.=($this->total_data==1)?' Entry':' Entries';
             $page_size='';
             if($this->page_size && $this->total_data>10){
                 $page_size=form_dropdown('page_size',$this->sizes,$this->count,array('class'=>'form-control radius-0 page_size','style'=>"position:absolute;width:70px;"));
             }
-            $pagination='<div class="pagination-div"><div>'.$showing.'</div>'.$page_size.$pagination.'</div>';
+            $pagination='<div class="pagination-div" style="height:60px;padding:10px 0;"><div>'.$showing.'</div>'.$page_size.$pagination.'</div>';
 			return $pagination;
 		}
 		else{
