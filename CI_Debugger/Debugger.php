@@ -2,12 +2,13 @@
 if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
-Description : Debugger for Codeigniter
-Version : v0.0019
+Description : Debugger for Codeigniter 3
+Version : v0.0020
 */
 class Debugger {
     var $ci;
     var $debug=FALSE;
+    var $debugbar=TRUE;
     var $default=TRUE;
     var $var_values=array();
     
@@ -16,6 +17,9 @@ class Debugger {
         $this->ci->benchmark->mark("default_start");
         if(defined('CI_DEBUGGER') && CI_DEBUGGER===TRUE){
             $this->debug=TRUE;
+        }
+        if($this->ci->session->debugbar===FALSE){
+            $debugbar=FALSE;
         }
     }
 
@@ -162,8 +166,17 @@ class Debugger {
         //$variable_names = array_keys($GLOBALS);
         //print_pre($variable_names);
         //print_pre($GLOBALS,true);
-        $bottombar='<a href="#" onClick="return toggleBottomBar()" id="debugger-toggle-button">&#11206</a>';
-        $bottombar.='<div  id="debugger-bottom-bar">';
+        $bottombar ='<a href="#" onClick="return toggleBottomBar()" id="debugger-toggle-button">';
+        
+        if($this->debugbar===FALSE){ $bottombar.='&#11205'; }
+        else{ $bottombar.='&#11206'; }
+        
+        $bottombar.='</a>';
+        $bottombar.='<div  id="debugger-bottom-bar" ';
+        if($this->debugbar===FALSE){
+            $bottombar.='style="display:none;"';
+        }
+        $bottombar.='>';
         $bottombar.='<span>Memory Usage: '.$this->getmemoryusage().'</span>';
         $bottombar.='<span>Execution Time: '.$this->getelapsedtime().'</span>';
         $bottombar.='<span id="debugger-page-load-time"></span>';
@@ -187,15 +200,25 @@ class Debugger {
             var listContainer = document.getElementById("debugger-list-container");
             function toggleBottomBar() {
                 var bottomBar = document.getElementById("debugger-bottom-bar");
-                var listContainer = document.getElementById("debugger-list-container");
-                listContainer.style.display = "none";
-                if (bottomBar.style.display === "none") {
-                    bottomBar.style.display = "block";
-                    document.getElementById("debugger-toggle-button").innerHTML="&#11206";
-                } else {
-                    bottomBar.style.display = "none";
-                    document.getElementById("debugger-toggle-button").innerHTML="&#11205;";
+                var toggleButton = document.getElementById("debugger-toggle-button");
+
+                // Check if bottomBar is currently visible
+                var isBottomBarVisible = bottomBar.style.display === "block";
+
+                // Toggle visibility of bottomBar
+                bottomBar.style.display = isBottomBarVisible ? "none" : "block";
+
+                // Toggle visibility of listContainer if needed
+                if (isBottomBarVisible) {
+                    listContainer.style.display = "none";
                 }
+
+                // Update toggleButton icon based on visibility
+                toggleButton.innerHTML = isBottomBarVisible ? "&#11205;" : "&#11206;";
+
+                // Save the state to localStorage
+                localStorage.setItem("debugBarVisible", !isBottomBarVisible);
+
                 return false;
             }';
         if($this->ci->input->get('debug')=='debugbar' && $this->debug==TRUE){
@@ -263,6 +286,18 @@ class Debugger {
         $script.="});";
         
         $script.="document.addEventListener('DOMContentLoaded', function() {
+        
+                    var isDebugBarVisible = localStorage.getItem('debugBarVisible') === 'true';
+                    var bottomBar = document.getElementById('debugger-bottom-bar');
+                    var toggleButton = document.getElementById('debugger-toggle-button');
+
+                    if (isDebugBarVisible) {
+                        bottomBar.style.display = 'block';
+                        toggleButton.innerHTML = '&#11206;';
+                    } else {
+                        bottomBar.style.display = 'none';
+                        toggleButton.innerHTML = '&#11205;';
+                    }
                     var viewListBtn = document.getElementById('debugger-view-list-btn');
 
                     viewListBtn.addEventListener('click', function() {
