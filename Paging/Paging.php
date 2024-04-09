@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Paging
 Description : Custom Pagination
-Version : v1.02
+Version : v1.03
 */
 
 
@@ -44,7 +44,7 @@ class Paging {
 	
 	protected $page_size=false;
     
-    protected $sizes=array(10=>10,25=>25,50=>50,100=>100,'All'=>'All');
+    protected $sizes=array(10=>10,25=>25,50=>50,100=>100);
 	
 	protected $config=false;
 
