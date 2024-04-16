@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Amount
 Description : Amount Operations
-Version : v1.10
+Version : v1.11
 */
 class Amount {
 	private $ones=array("","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
@@ -135,14 +135,14 @@ class Amount {
 		return $words;
 	}
 	
-	function toDecimal($number,$decimal=true){
+	function toDecimal($number,$decimal=true,$decimalDigits=2){
         if($number==0){ return 0; }
 		$sign="";
 		if($number<0){
 			$number=0-$number;
 			$sign="-";
 		}
-		$amount=number_format((float)$number,2,'.','');
+		$amount=number_format((float)$number,$decimalDigits,'.','');
 		$array=explode('.',$amount);
 		$arr=str_split($array[0],1);
 		$length=sizeof($arr);
