@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter 3
-Version : v0.0020
+Version : v0.0021
 */
 class Debugger {
     var $ci;
@@ -181,7 +181,8 @@ class Debugger {
         $bottombar.='<span>Execution Time: '.$this->getelapsedtime().'</span>';
         $bottombar.='<span id="debugger-page-load-time"></span>';
         $bottombar.='<span><button id="debugger-view-list-btn">View Resources</button></span>';
-        $bottombar.='<a href="#" onClick="window.location.reload(); return false;">&#11119 Reload Page</a>';
+        $bottombar.='<a href="#" onClick="window.location.reload(); return false;">&#11119; Reload Page</a>';
+        $bottombar.='<a href="#" onClick="reloadAjax(); return false;">&#11119; Reload Last Request</a>';
         $bottombar.='<a href="'.base_url('pull.php').'" target="_blank">&#8681; Pull Files</a>';
         $bottombar.='<a href="#" onClick="window.print(); return false;">&#9113; Print Page</a>';
         //$bottombar.='<a href="#" onClick="clearCacheAndReload(); return false;">&#11119 Clear Cache &amp; Reload</a>';
