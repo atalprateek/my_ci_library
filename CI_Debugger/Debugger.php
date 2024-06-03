@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter 3
-Version : v0.0022
+Version : v0.0023
 */
 class Debugger {
     var $ci;
@@ -151,6 +151,7 @@ class Debugger {
                 padding: 5px 10px;
                 background-color: #e9e9e9;
                 border-bottom: 1px solid #cdcdcd;
+                overflow-wrap: break-word;
             }
             /* Basic styling for the pop-up notification */
             .debugger-popup {
