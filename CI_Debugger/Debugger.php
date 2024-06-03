@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter 3
-Version : v0.0021
+Version : v0.0022
 */
 class Debugger {
     var $ci;
@@ -84,80 +84,155 @@ class Debugger {
     }
 
     function getdebuggerbarstyle() {
-        $style='<style>';
-        $style.='body{';
-        $style.='padding-bottom:60px;';
-        $style.='}';
-        $style.='#debugger-toggle-button{';
-        $style.='position: fixed;';
-        $style.='z-index: 100000;';
-        $style.='display: block;';
-        $style.='text-decoration: none;';
-        $style.='left: 0;';
-        $style.='bottom: 5px;';
-        $style.='font-size: 20px;';
-        $style.='padding: 2px 5px;';
-        $style.='}';
-        $style.='#debugger-bottom-bar{';
-        $style.='position: fixed;';
-        $style.='bottom: 0;';
-        $style.='left: 0;';
-        $style.='width: 100%;';
-        $style.='background-color: #f0f0f0;';
-        $style.='padding: 10px;';
-        $style.='padding-left: 20px;';
-        $style.='border-top: 1px solid #ccc;';
-        $style.='z-index: 9999;';
-        $style.='}';
-        $style.='#debugger-bottom-bar *{';
-        $style.='margin:0 10px;';
-        $style.='}';
-        $style.='#debugger-view-list-btn{';
-        $style.='display: inline-block;';
-        $style.='padding: 0px 5px;';
-        $style.='font-size: 12px;';
-        $style.='font-weight: 500;';
-        $style.='text-align: center;';
-        $style.='text-decoration: none;';
-        $style.='color: #ffffff;';
-        $style.='background-color: #007bff;';
-        $style.='border: 2px solid #007bff;';
-        $style.='border-radius: 5px;';
-        $style.='cursor: pointer;';
-        $style.='}';
-        $style.='#debugger-view-list-btn:hover {';
-        $style.='background-color: #0056b3;';
-        $style.='border-color: #0056b3;';
-        $style.='}';
-        $style.='#debugger-list-container {';
-        $style.='position: fixed;';
-        $style.='bottom: 40px;';
-        $style.='max-height: 150px;';
-        $style.='overflow:auto;';
-        $style.='left: 0;';
-        $style.='width: 100%;';
-        $style.='background-color: #e9e9e9;';
-        $style.='border-top: 1px solid #ccc;';
-        $style.='padding: 0 0 10px 0;';
-        $style.='display: none;';
-        $style.='z-index: 9998;';
-        $style.='}';
-        $style.='#debugger-list-container ul{';
-        $style.='list-style:none;';
-        $style.='padding:5px 0;';
-        $style.='}';
-        $style.='#debugger-list-container ul li{';
-        $style.='padding: 5px 10px;';
-        $style.='background-color: #e9e9e9;';
-        $style.='border-bottom: 1px solid #cdcdcd;';
-        $style.='}';
+        $style ='<style>';
+        $style.= <<<CSS
+            body{
+                padding-bottom:60px;
+            }
+            #debugger-toggle-button{
+                position: fixed;
+                z-index: 100000;
+                display: block;
+                text-decoration: none;
+                left: 0;
+                bottom: 5px;
+                font-size: 20px;
+                padding: 2px 5px;
+            }
+            #debugger-bottom-bar{
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background-color: #f0f0f0;
+                padding: 10px;
+                padding-left: 20px;
+                border-top: 1px solid #ccc;
+                z-index: 9999;
+            }
+            #debugger-bottom-bar *{
+                margin:0 10px;
+            }
+            #debugger-view-list-btn{
+                display: inline-block;
+                padding: 0px 5px;
+                font-size: 12px;
+                font-weight: 500;
+                text-align: center;
+                text-decoration: none;
+                color: #ffffff;
+                background-color: #007bff;
+                border: 2px solid #007bff;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+            #debugger-view-list-btn:hover {
+                background-color: #0056b3;
+                border-color: #0056b3;
+            }
+            #debugger-list-container {
+                position: fixed;
+                bottom: 40px;
+                max-height: 150px;
+                overflow:auto;
+                left: 0;
+                width: 100%;
+                background-color: #e9e9e9;
+                border-top: 1px solid #ccc;
+                padding: 0 0 10px 0;
+                display: none;
+                z-index: 9998;
+            }
+            #debugger-list-container ul{
+                list-style:none;
+                padding:5px 0;
+            }
+            #debugger-list-container ul li{
+                padding: 5px 10px;
+                background-color: #e9e9e9;
+                border-bottom: 1px solid #cdcdcd;
+            }
+            /* Basic styling for the pop-up notification */
+            .debugger-popup {
+                 visibility: hidden;
+                 min-width: 250px;
+                 background-color: #333;
+                 color: #fff;
+                 text-align: center;
+                 border-radius: 5px;
+                 padding: 16px;
+                 position: fixed;
+                 z-index: 1;
+                 left: 50%;
+                 bottom: 30px;
+                 transform: translateX(-50%);
+                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            }
+            .debugger-popup.popup-success {
+                 background-color: #32bb30;
+            }
+            .debugger-popup.popup-danger {
+                 background-color: #c52424;
+            }
+            /* Show the pop-up notification */
+            .debugger-popup.show {
+                 visibility: visible;
+                 -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+                 animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            }
+            /* Animation for fading in */
+            @-webkit-keyframes fadein {
+                 from {
+                    bottom: 0;
+                     opacity: 0;
+                }
+                 to {
+                    bottom: 30px;
+                     opacity: 1;
+                }
+            }
+            @keyframes fadein {
+                 from {
+                    bottom: 0;
+                     opacity: 0;
+                }
+                 to {
+                    bottom: 30px;
+                     opacity: 1;
+                }
+            }
+            /* Animation for fading out */
+            @-webkit-keyframes fadeout {
+                 from {
+                    bottom: 30px;
+                     opacity: 1;
+                }
+                 to {
+                    bottom: 0;
+                     opacity: 0;
+                }
+            }
+            @keyframes fadeout {
+                 from {
+                    bottom: 30px;
+                     opacity: 1;
+                }
+                 to {
+                    bottom: 0;
+                     opacity: 0;
+                }
+            }
+CSS;
         $style.='</style>';
         $style.='<style type="text/css" media="print">';
-        $style.='#debugger-bottom-bar,';
-        $style.='#debugger-toggle-button{';
-        $style.='display:none;';
-        $style.='}';
+        $style.= <<<CSS
+            #debugger-bottom-bar,
+            #debugger-toggle-button{
+                display:none;
+            }
+CSS;
         $style.='</style>';
+        
         echo $style;
     }
 
@@ -182,7 +257,7 @@ class Debugger {
         $bottombar.='<span id="debugger-page-load-time"></span>';
         $bottombar.='<span><button id="debugger-view-list-btn">View Resources</button></span>';
         $bottombar.='<a href="#" onClick="window.location.reload(); return false;">&#11119; Reload Page</a>';
-        $bottombar.='<a href="#" onClick="reloadAjax(); return false;">&#11119; Reload Last Request</a>';
+        $bottombar.='<a href="#" onClick="if (typeof reloadAjax === \'function\') { reloadAjax(); } else { console.log(\'Function does not exist.\');showPopup(\'Function does not exist.\',\'error\'); } return false;">&#11119; Reload Last Request</a>';
         $bottombar.='<a href="'.base_url('pull.php').'" target="_blank">&#8681; Pull Files</a>';
         $bottombar.='<a href="#" onClick="window.print(); return false;">&#9113; Print Page</a>';
         //$bottombar.='<a href="#" onClick="clearCacheAndReload(); return false;">&#11119 Clear Cache &amp; Reload</a>';
@@ -320,6 +395,32 @@ class Debugger {
                     var liCount=ul.getElementsByTagName('li').length;
                     document.getElementById('debugger-view-list-btn').innerText='View Resources ('+liCount+')';
                 }";
+        
+        $script.="// Function to create and show the pop-up notification
+                    function showPopup(message,status) {
+                        // Create the pop-up element
+                        var popup = document.createElement('div');
+                        popup.className = 'debugger-popup';
+                        popup.innerHTML = message;
+
+                        // Append the pop-up to the body
+                        document.body.appendChild(popup);
+
+                        // Add the show class to make it visible
+                        popup.classList.add('show');
+                        
+                        if(status=='error'){
+                            popup.classList.add('popup-danger');
+                        }
+                        else{
+                            popup.classList.add('popup-success');
+                        }
+
+                        // Remove the pop-up after the animation completes
+                        setTimeout(function() {
+                            popup.remove();
+                        }, 3000); // 3 seconds
+                    }";
         
         $script.='</script>';
         echo $script;
