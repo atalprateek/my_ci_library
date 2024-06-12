@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Paging
 Description : Custom Pagination
-Version : v1.03
+Version : v1.04
 */
 
 
@@ -27,6 +27,8 @@ class Paging {
 	protected $display_type="individual";
 	
 	protected $prevnext=array("prev"=>"&lt; Prev","next"=>"Next &gt;");
+	
+	protected $prevnextstatus="hide";
 	
 	protected $skip=array("num"=>5,"skip_prev"=>"&lt; Skip 5","skip_next"=>"Skip 5 &gt;");
 	
@@ -139,8 +141,17 @@ class Paging {
 				if(array_search("skip",$this->display_links)!==false && $this->page-$this->skip['num']>0){
 					$pagination.=$this->createpagelinks($this->page-$this->skip['num'],$this->skip['skip_prev'],false,$this->li_class,$this->link_class);
 				}
-				if(array_search("prevnext",$this->display_links)!==false && $this->page!=1){
-					$pagination.=$this->createpagelinks($this->page-1,$this->prevnext['prev'],false,$this->li_class,$this->link_class);
+				if(array_search("prevnext",$this->display_links)!==false){
+                    if($this->page==1 && $this->prevnextstatus=='hide'){
+                    }
+                    elseif($this->page==1 && $this->prevnextstatus=='disabled'){
+                        $prev_class=$this->link_class;
+                        $prev_class[]="disabled";
+                        $pagination.=$this->createpagelinks($this->page-1,$this->prevnext['prev'],false,$this->li_class,$prev_class);
+                    }
+                    else{
+                        $pagination.=$this->createpagelinks($this->page-1,$this->prevnext['prev'],false,$this->li_class,$this->link_class);
+                    }
 				}
 				if(array_search("pages",$this->display_links)!==false){
 					for($i=1;$i<=$this->pages;$i++){
@@ -153,8 +164,17 @@ class Paging {
 						}
 					}
 				}
-				if(array_search("prevnext",$this->display_links)!==false && $this->page!=$this->pages){
-					$pagination.=$this->createpagelinks($this->page+1,$this->prevnext['next'],false,$this->li_class,$this->link_class);
+				if(array_search("prevnext",$this->display_links)!==false){
+                    if($this->page==$this->pages && $this->prevnextstatus=='hide'){
+                    }
+                    elseif($this->page==$this->pages && $this->prevnextstatus=='disabled'){
+                        $next_class=$this->link_class;
+                        $next_class[]="disabled";
+                        $pagination.=$this->createpagelinks(NULL,$this->prevnext['next'],false,$this->li_class,$next_class);
+                    }
+                    else{
+                        $pagination.=$this->createpagelinks($this->page+1,$this->prevnext['next'],false,$this->li_class,$this->link_class);
+                    }
 				}
 				if(array_search("skip",$this->display_links)!==false && $this->pages-$this->page>=$this->skip['num']){
 					$pagination.=$this->createpagelinks($this->page+$this->skip['num'],$this->skip['skip_next'],false,$this->li_class,$this->link_class);
@@ -177,11 +197,14 @@ class Paging {
                 $showing.='All';
             }
             $showing.=($this->total_data==1)?' Entry':' Entries';
+            if($this->page>$this->pages){
+                $showing="";
+            }
             $page_size='';
             if($this->page_size && $this->total_data>10){
                 $page_size=form_dropdown('page_size',$this->sizes,$this->count,array('class'=>'form-control radius-0 page_size','style'=>"position:absolute;width:70px;"));
             }
-            $pagination='<div class="pagination-div" style="min-height:60px;padding:10px 0;"><div>'.$showing.'</div>'.$page_size.$pagination.'</div>';
+            $pagination='<div class="pagination-div" style="min-height:60px;padding:10px 0;"><div class="pagination-info">'.$showing.'</div>'.$page_size.$pagination.'</div>';
 			return $pagination;
 		}
 		else{
@@ -212,7 +235,7 @@ class Paging {
 		$pagelink.="<li class='".implode(" ",$li_class);
 		if($current===true){$pagelink.=" active";}
         $pagelink.="'>";
-		if($page!=""){
+		if(!empty($page)){
 			$href=$this->url."page/".$page."/".$this->pagefilters;
 		}
 		else{
