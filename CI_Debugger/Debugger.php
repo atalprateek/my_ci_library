@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter 3
-Version : v0.0023
+Version : v0.0024
 */
 class Debugger {
     var $ci;
@@ -303,7 +303,7 @@ CSS;
             $script.='var queryParam="debug=debugbar";';
             $script.='for (var i = 0; i < anchors.length; i++) {
                         var href=anchors[i].href;
-                        if(href.indexOf("'.base_url().'")!=-1){
+                        if(href.indexOf("'.base_url().'")!=-1 && href.indexOf("#")==-1){
                             console.log(anchors[i].innerText);
                             var separator = href.indexOf("?") === -1 ? "?" : "&";
 
