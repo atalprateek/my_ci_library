@@ -16,5 +16,11 @@
         "path": "Paging",
         "version": "v1.0",
         "url": "https://raw.githubusercontent.com/atalprateek/my_ci_library/main/Paging/Paging.php"
+    },
+    {
+        "name": "Encryption_lib",
+        "path": "Encryption_lib",
+        "version": "v0.01",
+        "url": "https://raw.githubusercontent.com/atalprateek/my_ci_library/main/Encryption_lib/Encryption_lib.php"
     }
 ]
