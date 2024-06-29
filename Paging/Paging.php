@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Paging
 Description : Custom Pagination
-Version : v1.04
+Version : v1.05
 */
 
 
@@ -22,7 +22,7 @@ class Paging {
     
 	protected $total_data;
 	
-	protected $display_links=array();
+	protected $display_links=array('pages','prevnext');
 	
 	protected $display_type="individual";
 	
