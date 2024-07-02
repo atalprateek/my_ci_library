@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter 3
-Version : v0.0024
+Version : v0.0025
 */
 class Debugger {
     var $ci;
@@ -227,9 +227,11 @@ CSS;
         $style.='</style>';
         $style.='<style type="text/css" media="print">';
         $style.= <<<CSS
-            #debugger-bottom-bar,
-            #debugger-toggle-button{
-                display:none;
+            @media print{
+                #debugger-bottom-bar,
+                #debugger-toggle-button{
+                    display:none;
+                }
             }
 CSS;
         $style.='</style>';
