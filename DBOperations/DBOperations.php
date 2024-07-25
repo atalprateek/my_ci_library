@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.01
+Version : v0.02
 */
 
 class DBOperations {
@@ -12,14 +12,14 @@ class DBOperations {
     public function __construct() {
         // Get the CodeIgniter super object
         $this->CI =& get_instance();
+        $this->checktable();
     }
 
     public function checktable() {
-        if ($this->db->table_exists('db_operations')) {
-            echo "Table exists!";
+        if ($this->CI->db->table_exists('db_operations')) {
+            //echo "Table exists!";
         } else {
-            echo "Table does not exist!";
-            echo $query="CREATE TABLE `".TP."db_operations` (
+            $query="CREATE TABLE `".TP."db_operations` (
                      `id` int(11) NOT NULL AUTO_INCREMENT,
                      `operation` varchar(50) NOT NULL,
                      `table_name` varchar(100) NOT NULL,
@@ -29,21 +29,45 @@ class DBOperations {
                      `added_on` datetime NOT NULL,
                      PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
+            $this->CI->db->query($query);
         }
     }
 
-    public function log($operation, $table, $primaryKey, $data) {
+    public function log_update($table, $data, $where) {
+        $updatedata=array();
+        $array=$this->CI->db->get_where($table,$where)->unbuffered_row('array');
+        $id=$array['id'];
+        $intersect=array_intersect_assoc($array,$data);
+
+        $changes = array_diff_key($data, $intersect);
+        if(!empty($changes)){
+            foreach($changes as $column=>$value){
+                if(empty($array[$column])){
+                    if(empty($data[$column])){
+                        continue;
+                    }
+                }
+                $updatedata['old'][$column]=$array[$column];
+                $updatedata['new'][$column]=$data[$column];
+            }
+        }
+        if(!empty($updatedata)){
+            $this->log('update',$table,$id,$updatedata);
+        }
+    }
+
+    public function log($operation, $table, $primaryKey, $updatedata) {
         $user=$this->getuser();
-        $auditData = [
+        $data = [
             'operation' => $operation,
             'table_name' => $table,
             'primary_key' => $primaryKey,
-            'data' => json_encode($data),
+            'data' => json_encode($updatedata),
             'user_id' =>$user['id'], 
-            'created_at' => date('Y-m-d H:i:s')
+            'added_on' => date('Y-m-d H:i:s')
         ];
         
-        $this->CI->db->insert('db_operations', $auditData);
+        $this->CI->db->insert('db_operations', $data);
     }
     
     public function getuser() {
