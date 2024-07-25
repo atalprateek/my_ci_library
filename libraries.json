@@ -22,5 +22,11 @@
         "path": "Encryption_lib",
         "version": "v0.01",
         "url": "https://raw.githubusercontent.com/atalprateek/my_ci_library/main/Encryption_lib/Encryption_lib.php"
+    },
+    {
+        "name": "DBOperations",
+        "path": "DBOperations",
+        "version": "v0.01",
+        "url": "https://raw.githubusercontent.com/atalprateek/my_ci_library/main/DBOperations/DBOperations.php"
     }
 ]
