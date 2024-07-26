@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.04
+Version : v0.05
 */
 
 class DBOperations {
@@ -80,7 +80,6 @@ class DBOperations {
                 //echo "No changes needed.";
             }
         }
-        die;
     }
 
     public function get_column_attributes($table, $column) {
