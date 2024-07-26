@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.03
+Version : v0.04
 */
 
 class DBOperations {
@@ -106,22 +106,24 @@ class DBOperations {
         $updatedata=array();
         $array=$this->CI->db->get_where($table,$where)->unbuffered_row('array');
         $id=$array['id'];
-        $intersect=array_intersect_assoc($array,$data);
+        if(!empty($id)){
+            $intersect=array_intersect_assoc($array,$data);
 
-        $changes = array_diff_key($data, $intersect);
-        if(!empty($changes)){
-            foreach($changes as $column=>$value){
-                if(empty($array[$column])){
-                    if(empty($data[$column])){
-                        continue;
+            $changes = array_diff_key($data, $intersect);
+            if(!empty($changes)){
+                foreach($changes as $column=>$value){
+                    if(empty($array[$column])){
+                        if(empty($data[$column])){
+                            continue;
+                        }
                     }
+                    $updatedata['old'][$column]=$array[$column];
+                    $updatedata['new'][$column]=$data[$column];
                 }
-                $updatedata['old'][$column]=$array[$column];
-                $updatedata['new'][$column]=$data[$column];
             }
-        }
-        if(!empty($updatedata)){
-            $this->log('update',$table,$id,$updatedata,$ref);
+            if(!empty($updatedata)){
+                $this->log('update',$table,$id,$updatedata,$ref);
+            }
         }
     }
 
