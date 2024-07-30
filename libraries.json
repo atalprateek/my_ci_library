@@ -28,5 +28,11 @@
         "path": "DBOperations",
         "version": "v0.01",
         "url": "https://raw.githubusercontent.com/atalprateek/my_ci_library/main/DBOperations/DBOperations.php"
+    },
+    {
+        "name": "DBMigration",
+        "path": "DBMigration",
+        "version": "v0.01",
+        "url": "https://raw.githubusercontent.com/atalprateek/my_ci_library/main/DBMigration/DBMigration.php"
     }
 ]
