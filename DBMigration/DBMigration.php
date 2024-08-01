@@ -11,8 +11,10 @@ class DBMigration {
     protected $db;
     protected $dbforge;
     private $tables;
+    private $oldData;
     var $root='migrations';
     var $migrationfile='migrations.json';
+    var $statusfile='migration-status.json';
     
     public function __construct() {
         // Get the CodeIgniter super object
@@ -20,7 +22,7 @@ class DBMigration {
         $this->db=$this->CI->db;
         $this->CI->load->dbforge();
         $this->dbforge=$this->CI->dbforge;
-        
+        defined('TP') OR define('TP',"");
     }
 
     public function generateMigration() {
@@ -41,9 +43,60 @@ class DBMigration {
     }
 
     public function runMigration() {
-        $this->checkMigrationFile();
-        $result=$this->createTable();
-        echo '<h3>'.$result['message'].'</h3>';
+        $this->getTables();
+        if(empty($this->tables)){
+            $this->checkMigrationFile();
+            $result=$this->createTables();
+            echo '<h3>'.$result['message'].'</h3>';
+        }
+        else{
+            echo '<h3>Tables Already Added!</h3>';
+            $statusfilepath=$this->root.'/'.$this->statusfile;
+            $statusdata=file_get_contents($statusfilepath);
+            if(empty($statusdata)){
+                $statusdata=array(0);
+                $jsondata=json_encode($statusdata,JSON_PRETTY_PRINT);
+                file_put_contents($statusfilepath,$jsondata);
+            }
+            else{
+                $statusdata=json_decode($statusdata,true);
+            }
+            $last=max($statusdata);
+            $last++;
+            
+            $filepath=$this->root.'/'.$this->migrationfile;
+            $data=file_get_contents($filepath);
+            $data=json_decode($data,true);
+            while(isset($data[$last])){
+                $tables=$data[$last];
+                if(!empty($tables)){
+                    foreach($tables as $table=>$attributes){
+                        $table=substr($table,3,strlen($table)-3);
+                        //print_pre($table);
+                        //print_pre($attributes);
+                        if(isset($attributes['remove'])){
+                            foreach($attributes['remove'] as $column=>$value){
+                                $this->dropColumn($table, $column);
+                            }
+                        }
+                        if(isset($attributes['update'])){
+                            $this->modifyColumn($table, $attributes['update']);
+                        }
+                        if(isset($attributes['add'])){
+                            $this->addColumn($table, $attributes['add']);
+                        }
+                    }
+                }
+                $last++;
+            }
+            $last--;
+            if(!in_array($last,$statusdata)){
+                echo '<h3>Database Updated!</h3>';
+                $statusdata[]=$last;
+                $jsondata=json_encode($statusdata,JSON_PRETTY_PRINT);
+                file_put_contents($statusfilepath,$jsondata);
+            }
+        }
     }
 
     public function getTables() {
@@ -54,7 +107,8 @@ class DBMigration {
     public function getColumns() {
         $data=array();
         foreach($this->tables as $table){
-            $data[$table]=array();
+            $tablename=strpos($table,TP)===0?str_replace(TP,TP,$table):$table;
+            $data[$tablename]=array();
             //if($table!='ns_users'){ continue; }
             //echo '<br>----------';
             //echo '<br>'.$table;
@@ -64,37 +118,6 @@ class DBMigration {
                 foreach($columns as $key=>$column){
                     if($columns[$key]['Field']==$fields[$key]->name){
                         $field=$fields[$key];
-                    //print_pre($column);
-                    //print_pre($fields[$key]);
-                        /*Array
-(
-    [Field] => id
-    [Type] => int(11)
-    [Null] => NO
-    [Key] => PRI
-    [Default] => 
-    [Extra] => auto_increment
-)
-stdClass Object
-(
-    [name] => id
-    [type] => int
-    [max_length] => 11
-    [default] => 
-    [primary_key] => 1
-)
-unsigned/true : to generate “UNSIGNED” in the field definition.
-default/value : to generate a default value in the field definition.
-null/true : to generate “NULL” in the field definition. Without this, the field will default to “NOT NULL”.
-auto_increment/true : generates an auto_increment flag on the field. Note that the field type must be a type that supports this, such as integer.
-unique/true :
-
-                "null" => false,
-                "auto_increment" => false,
-                "primary" => false,
-                "unique" => false
-                        
-                    */
                         $attributes=$this->getDatatypeAttributes($field->type);
                         foreach($attributes as $attribute=>$value){
                             if($attribute=='constraint'){
@@ -160,11 +183,78 @@ unique/true :
                         }
                         //echo '--------------xxxxxxxxxxxxx-----------';
                     }
-                    $data[$table][$column['Field']]=$attributes;
+                    $data[$tablename][$column['Field']]=$attributes;
                 }
             }
         }
+        $json = file_get_contents($this->root.'/'.$this->migrationfile);
+        $data=array($data);
+        
+        if(!empty($json)){
+            $array=json_decode($json,true);
+            $this->oldData=$array;
+            $diff=$this->compareArrays($array[0],$data[0]);
+            $diffData=$this->createDiffData($diff);
+            //$positions=$this->getColumnPositions('ns_notes');
+            //print_pre($positions);
+            //print_pre($diffData,true);
+            if(!empty($diffData)){
+                $data[]=$diffData;
+            }
+        }
+        //print_pre($data,true);
         return $data;
+    }
+
+    public function createDiffData($diff) {
+        $result=array();
+        if(!empty($diff)){
+            foreach($diff as $table=>$columns){
+                $result[$table]=array();
+                foreach($columns as $column=>$attributes){
+                    if(isset($attributes['status'])){
+                        if($attributes['status']=='added'){
+                            $result[$table]['add'][$column]=$attributes['value'];
+                        }
+                        if($attributes['status']=='removed'){
+                            $result[$table]['remove'][$column]=$attributes['value'];
+                        }
+                    }
+                    else{
+                        $oldAttributes=$this->oldData[0][$table][$column];
+                        $result[$table]['update'][$column]=array();
+                        foreach($oldAttributes as $attribute=>$value){
+                            if(isset($attributes[$attribute])){
+                                if($attributes[$attribute]['status']=='updated'){
+                                    if($value==$attributes[$attribute]['old_value']){
+                                        $result[$table]['update'][$column][$attribute]=$attributes[$attribute]['new_value'];
+                                    }
+                                }
+                                /*elseif($attributes[$attribute]['status']=='removed'){
+                                    $result[$table]['remove'][$column][$attribute]=$attributes[$attribute]['value'];
+                                }*/
+                            }
+                            else{
+                                $result[$table]['update'][$column][$attribute]=$value;
+                            }
+                        }
+                        foreach($attributes as $attribute=>$value){
+                            if(!isset($result[$table]['update'][$column][$attribute])){
+                                if(isset($value['status']) && $value['status']=='added'){
+                                    $result[$table]['update'][$column][$attribute]=$value['value'];
+                                }
+                            }
+                        }
+                    }
+                    if(isset($result[$table]['update'][$column]['null'])){
+                        if(!isset($result[$table]['update'][$column]['default'])){
+                            $result[$table]['update'][$column]['default']=NULL;
+                        }
+                    }
+                }
+            }
+        }
+        return $result;
     }
 
     public function checkMigrationFile() {
@@ -176,12 +266,38 @@ unique/true :
             $fh=fopen($filepath,'w');
             fclose($fh);
         }
+        
+        $filepath=$this->root.'/'.$this->statusfile;
+        if(!file_exists($filepath)){
+            $fh=fopen($filepath,'w');
+            fclose($fh);
+            
+            $ignorefilepath='./.gitignore';
+            if(file_exists($ignorefilepath)){
+                $array=array();
+                $status=1;
+                $fh=fopen($ignorefilepath,'a+');
+                while (($line = fgets($fh)) !== false) {
+                    $array[]=$line;
+                    if(strpos($line,'/'.$this->root.'/'.$this->statusfile)!==false){
+                        $status=0;
+                        break;
+                    }
+                }
+                if($status==1){
+                    fwrite($fh,"\n");
+                    fwrite($fh,'/'.$this->root.'/'.$this->statusfile);
+                }
+                fclose($fh);
+            }
+        }
     }
 
-    public function createTable() {
+    public function createTables() {
         $filepath=$this->root.'/'.$this->migrationfile;
         $data=file_get_contents($filepath);
         $tables=json_decode($data,true);
+        $tables=$tables[0];
         if(!empty($tables)){
             foreach($tables as $table=>$attributes){
                 //if($table!='ns_users'){ continue; }
@@ -211,7 +327,62 @@ unique/true :
             return array('status'=>false,'message'=>'Migration data not found!');
         }
     }
+    
+    function compareArrays($array1, $array2) {
+        $diff = [];
+        // Check for differences in $array1 that are not in $array2
+        foreach ($array1 as $key => $value) {
+            if (array_key_exists($key, $array2)) {
+                if (is_array($value)) {
+                    $recursiveDiff = $this->compareArrays($value, $array2[$key]);
+                    if (!empty($recursiveDiff)) {
+                        $diff[$key] = $recursiveDiff;
+                    }
+                } elseif ($value != $array2[$key]) {
+                    // Key exists in both, but the value has been updated
+                    $diff[$key] = [
+                        'status' => 'updated',
+                        'old_value' => $value,
+                        'new_value' => $array2[$key]
+                    ];
+                }
+            } else {
+                // Key is missing in the second array
+                $diff[$key] = [
+                    'status' => 'removed',
+                    'value' => $value
+                ];
+            }
+        }
 
+        // Check for keys that exist in $array2 but not in $array1
+        foreach ($array2 as $key => $value) {
+            if (!array_key_exists($key, $array1)) {
+                // Key is newly added in the second array
+                $diff[$key] = [
+                    'status' => 'added',
+                    'value' => $value
+                ];
+            }
+        }
+        
+        return $diff;
+    }
+    
+    public function getColumnPositions($table_name) {
+        $database_name = $this->db->database;  // Get the current database name
+        
+        $sql = "SELECT COLUMN_NAME, ORDINAL_POSITION
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = '$database_name'
+                AND TABLE_NAME = '$table_name'
+                ORDER BY ORDINAL_POSITION ASC";
+
+        $query = $this->db->query($sql);
+
+        return $query->result_array();
+    }
+    
     public function dropTable() {
         $this->dbforge->drop_table('table_name',TRUE);
     }
@@ -220,16 +391,24 @@ unique/true :
         $this->dbforge->rename_table('old_table_name', 'new_table_name');
     }
 
-    public function addColumn() {
-        $fields = array(
+    public function addColumn($table,$fields) {
+        /*$fields = array(
                 'preferences' => array('type' => 'TEXT', 'after' => 'another_field')
         );
 
         // Will place the new column at the start of the table definition:
         $fields = array(
                 'preferences' => array('type' => 'TEXT', 'first' => TRUE)
-        );
-        $this->dbforge->add_column('table_name', $fields);
+        );*/
+        $this->dbforge->add_column($table, $fields);
+    }
+
+    public function modifyColumn($table,$fields) {
+        $this->dbforge->modify_column($table,$fields);
+    }
+
+    public function dropColumn($table,$column) {
+        $this->dbforge->drop_column($table,$column);
     }
 
     public function checkcolumns() {
@@ -278,26 +457,6 @@ unique/true :
         }
     }
 
-    public function getColumnAttributes($table, $column) {
-        $fields = $this->CI->db->field_data($table);
-        
-        foreach ($fields as $field) {
-            if ($field->name == $column) {
-                $attributes = [
-                    'type' => strtoupper($field->type),
-                    'constraint' => $field->max_length,
-                    'unsigned' => isset($field->unsigned) ? $field->unsigned : FALSE,
-                    'null' => false,
-                    'default' => $field->default,
-                    'primary_key' => $field->primary_key
-                ];
-                return $attributes;
-            }
-        }
-        
-        return null;
-    }
-    
     public function getDatatypeAttributes($type){
 //unsigned/true : to generate “UNSIGNED” in the field definition.
 //default/value : to generate a default value in the field definition.
