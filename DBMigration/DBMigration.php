@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBMigration
 Description : DB Migration for Codeigniter 3
-Version : v0.01
+Version : v0.02
 */
 
 class DBMigration {
