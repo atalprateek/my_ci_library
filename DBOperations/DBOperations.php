@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.06
+Version : v0.07
 */
 
 class DBOperations {
@@ -101,6 +101,7 @@ class DBOperations {
         
         return null;
     }
+    
     public function log_update($table, $data, $where, $ref) {
         $updatedata=array();
         $array=$this->CI->db->get_where($table,$where)->unbuffered_row('array');
@@ -126,6 +127,12 @@ class DBOperations {
                 $this->log('update',$table,$id,$updatedata,$ref);
             }
         }
+    }
+
+    public function log_delete($table, $where, $ref) {
+        $array=$this->CI->db->get_where($table,$where)->unbuffered_row('array');
+        $id=$array['id'];
+        $this->log('delete',$table,$id,$array,$ref);
     }
 
     public function log($operation, $table, $primaryKey, $updatedata, $ref) {
