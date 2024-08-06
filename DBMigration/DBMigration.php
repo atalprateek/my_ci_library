@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBMigration
 Description : DB Migration for Codeigniter 3
-Version : v0.02
+Version : v0.03
 */
 
 class DBMigration {
@@ -187,9 +187,9 @@ class DBMigration {
                 }
             }
         }
-        $json = file_get_contents($this->root.'/'.$this->migrationfile);
         $data=array($data);
         
+        $json = file_get_contents($this->root.'/'.$this->migrationfile);
         if(!empty($json)){
             $array=json_decode($json,true);
             $this->oldData=$array;
@@ -198,19 +198,28 @@ class DBMigration {
             //$positions=$this->getColumnPositions('ns_notes');
             //print_pre($positions);
             //print_pre($diffData,true);
+            $array[0]=$data[0];
             if(!empty($diffData)){
-                $data[]=$diffData;
+                $array[]=$diffData;
             }
         }
         //print_pre($data,true);
-        return $data;
+        return $array;
     }
 
     public function createDiffData($diff) {
         $result=array();
         if(!empty($diff)){
+            //print_pre($diff,true);
             foreach($diff as $table=>$columns){
                 $result[$table]=array();
+                if(isset($columns['status']) && $columns['status']=='added'){
+                    $columns=$columns['value'];
+                    foreach($columns as $column=>$attributes){
+                        $result[$table]['update'][$column]=$attributes;
+                    }
+                    continue;
+                }
                 foreach($columns as $column=>$attributes){
                     if(isset($attributes['status'])){
                         if($attributes['status']=='added'){
@@ -221,7 +230,7 @@ class DBMigration {
                         }
                     }
                     else{
-                        $oldAttributes=$this->oldData[0][$table][$column];
+                        $oldAttributes=!empty($this->oldData[0][$table])?$this->oldData[0][$table][$column]:array();
                         $result[$table]['update'][$column]=array();
                         foreach($oldAttributes as $attribute=>$value){
                             if(isset($attributes[$attribute])){
