@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.05
+Version : v0.06
 */
 
 class DBOperations {
@@ -116,8 +116,10 @@ class DBOperations {
                             continue;
                         }
                     }
-                    $updatedata['old'][$column]=$array[$column];
-                    $updatedata['new'][$column]=$data[$column];
+                    if($array[$column]!=$data[$column]){
+                        $updatedata['old'][$column]=$array[$column];
+                        $updatedata['new'][$column]=$data[$column];
+                    }
                 }
             }
             if(!empty($updatedata)){
