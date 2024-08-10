@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.07
+Version : v0.08
 */
 
 class DBOperations {
@@ -104,35 +104,43 @@ class DBOperations {
     
     public function log_update($table, $data, $where, $ref) {
         $updatedata=array();
-        $array=$this->CI->db->get_where($table,$where)->unbuffered_row('array');
-        $id=$array['id'];
-        if(!empty($id)){
-            $intersect=array_intersect_assoc($array,$data);
+        $array=$this->CI->db->get_where($table,$where)->result_array();
+        if(!empty($array)){
+            foreach($array as $single){
+                $id=$single['id'];
+                if(!empty($id)){
+                    $intersect=array_intersect_assoc($single,$data);
 
-            $changes = array_diff_key($data, $intersect);
-            if(!empty($changes)){
-                foreach($changes as $column=>$value){
-                    if(empty($array[$column])){
-                        if(empty($data[$column])){
-                            continue;
+                    $changes = array_diff_key($data, $intersect);
+                    if(!empty($changes)){
+                        foreach($changes as $column=>$value){
+                            if(empty($single[$column])){
+                                if(empty($data[$column])){
+                                    continue;
+                                }
+                            }
+                            if($single[$column]!=$data[$column]){
+                                $updatedata['old'][$column]=$single[$column];
+                                $updatedata['new'][$column]=$data[$column];
+                            }
                         }
                     }
-                    if($array[$column]!=$data[$column]){
-                        $updatedata['old'][$column]=$array[$column];
-                        $updatedata['new'][$column]=$data[$column];
+                    if(!empty($updatedata)){
+                        $this->log('update',$table,$id,$updatedata,$ref);
                     }
                 }
-            }
-            if(!empty($updatedata)){
-                $this->log('update',$table,$id,$updatedata,$ref);
             }
         }
     }
 
     public function log_delete($table, $where, $ref) {
-        $array=$this->CI->db->get_where($table,$where)->unbuffered_row('array');
-        $id=$array['id'];
-        $this->log('delete',$table,$id,$array,$ref);
+        $array=$this->CI->db->get_where($table,$where)->result_array();
+        if(!empty($array)){
+            foreach($array as $single){
+                $id=$single['id'];
+                $this->log('delete',$table,$id,$single,$ref);
+            }
+        }
     }
 
     public function log($operation, $table, $primaryKey, $updatedata, $ref) {
