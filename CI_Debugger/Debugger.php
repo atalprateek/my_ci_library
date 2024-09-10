@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter 3
-Version : v0.0025
+Version : v0.0026
 */
 class Debugger {
     var $ci;
@@ -258,6 +258,7 @@ CSS;
         $bottombar.='<span>Memory Usage: '.$this->getmemoryusage().'</span>';
         $bottombar.='<span>Execution Time: '.$this->getelapsedtime().'</span>';
         $bottombar.='<span id="debugger-page-load-time"></span>';
+        $bottombar.='<span id="stay-time"></span>';
         $bottombar.='<span><button id="debugger-view-list-btn">View Resources</button></span>';
         $bottombar.='<a href="#" onClick="window.location.reload(); return false;">&#11119; Reload Page</a>';
         $bottombar.='<a href="#" onClick="if (typeof reloadAjax === \'function\') { reloadAjax(); } else { console.log(\'Function does not exist.\');showPopup(\'Function does not exist.\',\'error\'); } return false;">&#11119; Reload Last Request</a>';
@@ -392,6 +393,17 @@ CSS;
                     document.cookie = 'no-cache=' + Date.now() + '; path=/';
                     location.reload();
                 }";
+        
+        $script.="let seconds = 0;
+        
+                    // Function to update the timer
+                    function updateTimer() {
+                        seconds++;
+                        document.getElementById('stay-time').innerText = 'Time Elapsed: '+seconds;
+                    }
+
+                    // Call the updateTimer function every 1 second (1000 milliseconds)
+                    setInterval(updateTimer, 1000);";
         
         $script.="function countResources() {
                     var ul = listContainer.querySelector('ul');
