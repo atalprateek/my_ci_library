@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.09
+Version : v0.10
 */
 
 class DBOperations {
@@ -29,6 +29,7 @@ class DBOperations {
                      `data` text NOT NULL,
                      `ref` varchar(100) NOT NULL,
                      `user_id` int(11) DEFAULT NULL,
+                     `parent_id` int(11) DEFAULT NULL,
                      `added_on` datetime NOT NULL,
                      PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
@@ -47,7 +48,8 @@ class DBOperations {
         $columns[]=array('name'=>'primary_key','attributes'=>array('type'=>'varchar','null'=>false,'constraint'=>255));
         $columns[]=array('name'=>'data','attributes'=>array('type'=>'text','null'=>false));
         $columns[]=array('name'=>'ref','attributes'=>array('type'=>'varchar','null'=>false,'constraint'=>100));
-        $columns[]=array('name'=>'user_id','attributes'=>array('type'=>'INT','null'=>false));
+        $columns[]=array('name'=>'user_id','attributes'=>array('type'=>'INT','null'=>true));
+        $columns[]=array('name'=>'parent_id','attributes'=>array('type'=>'INT','null'=>true));
         $columns[]=array('name'=>'added_on','attributes'=>array('type'=>'datetime','null'=>false));
         foreach($columns as $column){
             $old_attributes=$this->get_column_attributes('db_operations',$column['name']);
@@ -102,7 +104,7 @@ class DBOperations {
         return null;
     }
     
-    public function log_update($table, $data, $where, $ref) {
+    public function log_update($table, $data, $where, $ref,$parent_id=NULL) {
         $updatedata=array();
         $array=$this->CI->db->get_where($table,$where)->result_array();
         if(!empty($array)){
@@ -126,24 +128,31 @@ class DBOperations {
                         }
                     }
                     if(!empty($updatedata)){
-                        $this->log('update',$table,$id,$updatedata,$ref);
+                        $this->log('update',$table,$id,$updatedata,$ref,$parent_id);
+                        if($result['status']===true){
+                            $parent_id=$parent_id===NULL?$result['parent_id']:$parent_id;
+                        }
                     }
                 }
             }
         }
     }
 
-    public function log_delete($table, $where, $ref) {
+    public function log_delete($table, $where, $ref,$parent_id=NULL) {
         $array=$this->CI->db->get_where($table,$where)->result_array();
         if(!empty($array)){
             foreach($array as $single){
                 $id=$single['id'];
-                $this->log('delete',$table,$id,$single,$ref);
+                $result=$this->log('delete',$table,$id,$single,$ref,$parent_id);
+                if($result['status']===true){
+                    $parent_id=$parent_id===NULL?$result['parent_id']:$parent_id;
+                }
             }
         }
+        return $parent_id;
     }
 
-    public function log($operation, $table, $primaryKey, $updatedata, $ref) {
+    public function log($operation, $table, $primaryKey, $updatedata, $ref,$parent_id=NULL) {
         $user=$this->getuser();
         $data = [
             'operation' => $operation,
@@ -154,8 +163,17 @@ class DBOperations {
             'user_id' =>$user['id'], 
             'added_on' => date('Y-m-d H:i:s')
         ];
-        
-        $this->CI->db->insert('db_operations', $data);
+        if(!empty($parent_id)){
+            $data['parent_id']=$parent_id;
+        }
+        //print_pre($data);
+        $result=$this->CI->db->insert('db_operations', $data);
+        if($result){
+            return array('status'=>true,'parent_id'=>$this->CI->db->insert_id());
+        }
+        else{
+            return array('status'=>false);
+        }
     }
     
     public function getuser() {
