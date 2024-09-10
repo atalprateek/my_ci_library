@@ -399,7 +399,7 @@ CSS;
                     // Function to update the timer
                     function updateTimer() {
                         seconds++;
-                        document.getElementById('stay-time').innerText = 'Time Elapsed: '+seconds;
+                        document.getElementById('stay-time').innerText = 'Time Elapsed: '+seconds+' seconds';
                     }
 
                     // Call the updateTimer function every 1 second (1000 milliseconds)
