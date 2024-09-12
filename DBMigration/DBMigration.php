@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBMigration
 Description : DB Migration for Codeigniter 3
-Version : v0.03
+Version : v0.04
 */
 
 class DBMigration {
@@ -187,13 +187,13 @@ class DBMigration {
                 }
             }
         }
-        $data=array($data);
+        $array=array($data);
         
         $json = file_get_contents($this->root.'/'.$this->migrationfile);
         if(!empty($json)){
             $array=json_decode($json,true);
             $this->oldData=$array;
-            $diff=$this->compareArrays($array[0],$data[0]);
+            $diff=$this->compareArrays($array[0],$data);
             $diffData=$this->createDiffData($diff);
             //$positions=$this->getColumnPositions('ns_notes');
             //print_pre($positions);
