@@ -128,7 +128,7 @@ class DBOperations {
                         }
                     }
                     if(!empty($updatedata)){
-                        $this->log('update',$table,$id,$updatedata,$ref,$parent_id);
+                        $result['status']=$this->log('update',$table,$id,$updatedata,$ref,$parent_id);
                         if($result['status']===true){
                             $parent_id=$parent_id===NULL?$result['parent_id']:$parent_id;
                         }

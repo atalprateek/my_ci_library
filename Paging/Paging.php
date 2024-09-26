@@ -20,6 +20,8 @@ class Paging {
 	
 	protected $page;
     
+	protected $page_type='uri';
+    
 	protected $total_data;
 	
 	protected $display_links=array('pages','prevnext');
@@ -202,9 +204,9 @@ class Paging {
             }
             $page_size='';
             if($this->page_size && $this->total_data>10){
-                $page_size=form_dropdown('page_size',$this->sizes,$this->count,array('class'=>'form-control radius-0 page_size','style'=>"position:absolute;width:70px;"));
+                $page_size=form_dropdown('page_size',$this->sizes,$this->count,array('class'=>'form-control radius-0 page_size','style'=>"width:auto;"));
             }
-            $pagination='<div class="pagination-div" style="min-height:60px;padding:10px 0;"><div class="pagination-info">'.$showing.'</div>'.$page_size.$pagination.'</div>';
+            $pagination='<div class="pagination-div" style="min-height:60px;"><div class="pagination-info">'.$showing.'</div>'.$page_size.$pagination.'</div>';
 			return $pagination;
 		}
 		else{
@@ -215,12 +217,16 @@ class Paging {
 		
 	public function createpagelinks($page,$link,$current,$li_class,$class){
 		if(is_array($this->pagefilters)){
-            if(!empty($this->pagefilters)){
-                $this->pagefilters=http_build_query($this->pagefilters);
-                $this->pagefilters="?".$this->pagefilters;
+            $pagefilters=$this->pagefilters;
+            if($this->page_type=='parameter'){
+                $pagefilters['page']=$page;
+            }
+            if(!empty($pagefilters)){
+                $pagefilters=http_build_query($pagefilters);
+                $pagefilters="?".$pagefilters;
             }
             else{
-                $this->pagefilters='';
+                $pagefilters='';
             }
 		}
 		if($this->display_type=="individual"){
@@ -236,7 +242,12 @@ class Paging {
 		if($current===true){$pagelink.=" active";}
         $pagelink.="'>";
 		if(!empty($page)){
-			$href=$this->url."page/".$page."/".$this->pagefilters;
+            if($this->page_type=='uri'){
+                $href=$this->url."page/".$page."/".$pagefilters;
+            }
+            else{
+                $href=$this->url.$pagefilters;
+            }
 		}
 		else{
 			$href="#";
