@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.10
+Version : v0.11
 */
 
 class DBOperations {
@@ -182,7 +182,7 @@ class DBOperations {
             $user=getuser();
         }
         else{
-            $this->CI->account->account->getuser(array("md5(id)"=>$CI->session->user));
+            $this->CI->account->account->getuser(array("md5(id)"=>$this->CI->session->user));
             if($getuser['status']==true){
                 $user=$geuser['user'];
             }
