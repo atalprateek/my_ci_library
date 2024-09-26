@@ -182,9 +182,9 @@ class DBOperations {
             $user=getuser();
         }
         else{
-            $this->CI->account->account->getuser(array("md5(id)"=>$this->CI->session->user));
+            $getuser=$this->CI->account->account->getuser(array("md5(id)"=>$this->CI->session->user));
             if($getuser['status']==true){
-                $user=$geuser['user'];
+                $user=$getuser['user'];
             }
             elseif(!empty($this->post($token))){
                 $token=$this->post($token);
