@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Amount
 Description : Amount Operations
-Version : v1.11
+Version : v1.12
 */
 class Amount {
 	private $ones=array("","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
@@ -178,4 +178,76 @@ class Amount {
 	function twoDigits($number){
 		return number_format((float)$number,2,'.','');
 	}
+    
+    function formatNumber($num,$numberSystem='Indian') {
+        if($numberSystem=='Indian'){
+            if ($num >= 10000000) {
+                // 1 crore and above
+                return round($num / 10000000, 1) . 'C';
+            } elseif ($num >= 100000) {
+                // 1 lakh and above
+                return round($num / 100000, 1) . 'L';
+            } elseif ($num >= 1000) {
+                // 1 thousand and above
+                return round($num / 1000, 1) . 'k';
+            } else {
+                // Less than 1 thousand
+                return $num;
+            }
+        }
+        else{
+            if ($num >= 1000000000000) {
+                // 1 trillion and above
+                return round($num / 1000000000000, 1) . 'T';
+            } elseif ($num >= 1000000000) {
+                // 1 billion and above
+                return round($num / 1000000000, 1) . 'B';
+            } elseif ($num >= 1000000) {
+                // 1 million and above
+                return round($num / 1000000, 1) . 'M';
+            } elseif ($num >= 1000) {
+                // 1 thousand and above
+                return round($num / 1000, 1) . 'k';
+            } else {
+                // Less than 1 thousand
+                return $num;
+            }
+        }
+    }
+    
+    function formatNumber($num,$numberSystem='Indian') {
+        if($numberSystem=='Indian'){
+            if ($num >= 10000000) {
+                // 1 crore and above
+                return round($num / 10000000, 1) . 'C';
+            } elseif ($num >= 100000) {
+                // 1 lakh and above
+                return round($num / 100000, 1) . 'L';
+            } elseif ($num >= 1000) {
+                // 1 thousand and above
+                return round($num / 1000, 1) . 'k';
+            } else {
+                // Less than 1 thousand
+                return $num;
+            }
+        }
+        else{
+            if ($num >= 1000000000000) {
+                // 1 trillion and above
+                return round($num / 1000000000000, 1) . 'T';
+            } elseif ($num >= 1000000000) {
+                // 1 billion and above
+                return round($num / 1000000000, 1) . 'B';
+            } elseif ($num >= 1000000) {
+                // 1 million and above
+                return round($num / 1000000, 1) . 'M';
+            } elseif ($num >= 1000) {
+                // 1 thousand and above
+                return round($num / 1000, 1) . 'k';
+            } else {
+                // Less than 1 thousand
+                return $num;
+            }
+        }
+    }
 }
