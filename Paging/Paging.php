@@ -47,6 +47,8 @@ class Paging {
 	protected $link_class=array();
 	
 	protected $page_size=false;
+
+	protected $style=true;
     
     protected $sizes=array(10=>10,25=>25,50=>50,100=>100);
 	
@@ -100,6 +102,80 @@ class Paging {
 		}
 	}
 	
+	public function paginationstyle(){
+		$style=<<<HTML
+				<style>
+					/* ----------------pagination start----------------------- */
+
+					.pagination-div .pagination {
+						justify-content: end;
+					}
+					.pagination-div .active > .page-link,
+					.pagination-div .page-link.active {
+						background-color: #3c46cf;
+						border-color: transparent;
+						border-radius: 0;
+						color: #fff;
+					}
+					.pagination-div .page-item:last-child .page-link,
+					.pagination-div .page-item:first-child .page-link {
+						border-radius: 0 !important;
+					}
+					.pagination-div .page-link {
+						color: #000;
+						font-size: 0.8rem;
+					}
+					.pagination-div .page-link:focus {
+						box-shadow: none;
+					}
+					.pagination-div .page-link {
+						border: 0 !important;
+					}
+					.pagination-div {
+						/* position: relative; */
+					}
+					.pagination-div .pagination-info {
+						/* top: 28px;
+						left: 105px;
+						position: absolute; */
+						font-size: 0.8rem;
+					}
+					.pagination-div .form-control {
+						appearance: auto !important;
+					}
+					.pagination-div {
+						background: #f6f6f8;
+						padding: 20px;
+						display: flex;
+						min-height: 60px;
+						justify-content: space-between;
+					}
+					.pagination-div .pagination {
+						margin-bottom: 0;
+						--bs-pagination-bg: #f6f7f8 !important;
+					}
+					.pagination-div .showpage {
+						display: flex;
+					}
+					.showpage select{
+						padding: 0!important;
+					}
+					.pagination-div .pagination-info {
+						margin-left: 4px;
+						padding: 8px;
+					}
+					.pagination-div .pagination li {
+						margin-right: 4px;
+					}
+					.pagination-div .showpage .form-control {
+						border-radius: 0;
+					}
+					/* ------------pagintaion end----------------------------- */
+				</style>
+HTML;
+					return $style;
+	}
+	
 	public function pagedata($array){
 		$offset=($this->page-1);
         $pagedata=array();
@@ -117,7 +193,11 @@ class Paging {
             $pagedata=$array;
         }
         $result=['pagedata'=>$pagedata];
-        $result['pagination']=$this->pagination();
+		$pagination=$this->pagination();
+		if($this->style){
+			$pagination=$this->paginationstyle().$pagination;
+		}
+        $result['pagination']=$pagination;
         //echo PRE;print_r($array);die;
         return $result;
 	}
