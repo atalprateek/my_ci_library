@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Paging
 Description : Custom Pagination
-Version : v1.07
+Version : v1.08
 */
 
 
@@ -76,7 +76,7 @@ class Paging {
 			}
 			foreach ($config as $key => $val){
 				if (property_exists($this, $key)){
-					if(is_array($val)){
+					if(is_array($val) && $key!='sizes'){
 						foreach($val as $key2=>$val2){
 							$this->{$key}[$key2]= $val2;
 						}
