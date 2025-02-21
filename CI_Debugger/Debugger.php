@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Debugger
 Description : Debugger for Codeigniter 3
-Version : v0.0026
+Version : v0.0027
 */
 class Debugger {
     var $ci;
