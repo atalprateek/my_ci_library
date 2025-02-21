@@ -10,17 +10,24 @@ class Debugger {
     var $debug=FALSE;
     var $debugbar=TRUE;
     var $default=TRUE;
+    var $current_url='';
     var $var_values=array();
     
     function __construct() {
         $this->ci =& get_instance();
         $this->ci->benchmark->mark("default_start");
+        $this->getcurrenturl();
         if(defined('CI_DEBUGGER') && CI_DEBUGGER===TRUE){
             $this->debug=TRUE;
         }
         if($this->ci->session->debugbar===FALSE){
             $debugbar=FALSE;
         }
+    }
+
+
+    function getcurrenturl() {
+        $this->current_url=$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
     }
 
 
@@ -264,6 +271,7 @@ CSS;
         $bottombar.='<a href="#" onClick="if (typeof reloadAjax === \'function\') { reloadAjax(); } else { console.log(\'Function does not exist.\');showPopup(\'Function does not exist.\',\'error\'); } return false;">&#11119; Reload Last Request</a>';
         $bottombar.='<a href="'.base_url('pull.php').'" target="_blank">&#8681; Pull Files</a>';
         $bottombar.='<a href="#" onClick="window.print(); return false;">&#9113; Print Page</a>';
+        $bottombar.='<a href="view-source:'.$this->current_url.'">&#9113; View Page Source</a>';
         //$bottombar.='<a href="#" onClick="clearCacheAndReload(); return false;">&#11119 Clear Cache &amp; Reload</a>';
         $bottombar.='</div>';
         
