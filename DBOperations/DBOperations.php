@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.13
+Version : v0.14
 */
 
 class DBOperations {
@@ -20,6 +20,7 @@ class DBOperations {
         if ($this->CI->db->table_exists('db_operations')) {
             //echo "Table exists!";
             $this->checkcolumns();
+            $this->checkolddata();
         } else {
             $query="CREATE TABLE `".TP."db_operations` (
                      `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -34,6 +35,34 @@ class DBOperations {
                      PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
             $this->CI->db->query($query);
+        }
+    }
+
+    public function checkolddata() {
+        $sql = "SELECT 
+            table_name AS `Table`, 
+            ROUND((data_length + index_length) / 1024 / 1024, 2) AS `Size_MB` 
+                FROM information_schema.TABLES 
+                WHERE table_schema = '".DB_NAME."' 
+                AND table_name = '".TP."db_operations'";
+                
+        $query=$this->CI->db->query($sql);
+        if($query->num_rows()>0){
+            $data=$query->unbuffered_row('array');
+            if($data['Size_MB']>5 || $this->CI->db->count_all('db_operations')>2000){
+                $where=["date(added_on)<"=>date('Y-m-d',strtotime('-1 month'))];
+                $array=$this->CI->db->get_where('db_operations',$where)->result_array();
+                $data=json_encode($array);
+                $filename='db_operation_data-'.date('y-m-d-h-i-s').'.json';
+                $root='./application/logs/db_log/';
+                if(!is_dir($root)){
+                    mkdir($root);
+                }
+                $fh=fopen($root.$filename,'w');
+                fwrite($fh,$data);
+                fclose($fh);
+                $this->CI->db->delete('db_operations',$where);
+            }
         }
     }
 
