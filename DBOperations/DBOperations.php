@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.15
+Version : v0.16
 */
 
 class DBOperations {
@@ -20,7 +20,9 @@ class DBOperations {
         if ($this->CI->db->table_exists('db_operations')) {
             //echo "Table exists!";
             $this->checkcolumns();
-            $this->checkolddata();
+            if(!defined('DELETE_OPERATIONS') || DELETE_OPERATIONS===true){
+                $this->checkolddata();
+            }
         } else {
             $query="CREATE TABLE `".TP."db_operations` (
                      `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -45,7 +47,7 @@ class DBOperations {
                 FROM information_schema.TABLES 
                 WHERE table_schema = '".DB_NAME."' 
                 AND table_name = '".TP."db_operations'";
-                
+
         $query=$this->CI->db->query($sql);
         if($query->num_rows()>0){
             $data=$query->unbuffered_row('array');
