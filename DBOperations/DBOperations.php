@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.16
+Version : v0.17
 */
 
 class DBOperations {
@@ -60,10 +60,19 @@ class DBOperations {
                 if(!is_dir($root)){
                     mkdir($root);
                 }
-                $fh=fopen($root.$filename,'w');
-                fwrite($fh,$data);
-                fclose($fh);
-                $this->CI->db->delete('db_operations',$where);
+                $file=$root.$filename;
+                if (!file_exists($file)) {
+                    // echo "File does not exist.";
+                } elseif (!is_readable($file)) {
+                    // echo "File is not readable.";
+                } elseif (!is_writable($file)) {
+                    // echo "File is not writable.";
+                } else {
+                    $fh=fopen($root.$filename,'w');
+                    fwrite($fh,$data);
+                    fclose($fh);
+                    $this->CI->db->delete('db_operations',$where);
+                }
             }
         }
     }
