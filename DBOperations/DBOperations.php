@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.17
+Version : v0.18
 */
 
 class DBOperations {
@@ -219,7 +219,7 @@ class DBOperations {
     public function getuser() {
         $user=array('id'=>0);
         if(function_exists('getuser')){
-            $user=getuser();
+            $user=getuser(false);
         }
         else{
             $getuser=$this->CI->account->account->getuser(array("md5(id)"=>$this->CI->session->user));
@@ -227,10 +227,10 @@ class DBOperations {
                 $user=$getuser['user'];
             }
         }
-        if(empty($user) && !empty($this->post($token))){
-            $token=$this->post($token);
-            $verify=$this->account->verify_token($token);
-            if(!empty($verify) && is_array($verify) && $verify['role']=='customer'){
+        if(empty($user) && !empty($this->CI->post('token'))){
+            $token=$this->CI->post('token');
+            $verify=$this->CI->account->verify_token($token);
+            if(!empty($verify) && is_array($verify)){
                 $user=$verify;
             }
         }
