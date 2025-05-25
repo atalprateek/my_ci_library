@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Imager
 Description : Image Manipulation Using Image Intervention
-Version : v1.0
+Version : v1.1
 */
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -280,6 +280,11 @@ class Imager {
         $x = round(($width / 2) - ($cropWidth / 2));
         $y = round(($height / 2) - ($cropHeight / 2));
 
+        $cropWidth = round($cropWidth);
+        $cropHeight = round($cropHeight);
+        $x = round($x);
+        $y = round($y);
+        
         // Crop the image from the center
         $image->crop($cropWidth, $cropHeight, $x, $y);
         // Determine encoding type and quality
