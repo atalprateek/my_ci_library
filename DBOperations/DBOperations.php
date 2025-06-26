@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.19
+Version : v0.20
 */
 
 class DBOperations {
@@ -234,7 +234,7 @@ class DBOperations {
                 $user=$verify;
             }
         }
-        else{
+        elseif(empty($user)){
             $user['id']=-1;
         }
         return $user;
