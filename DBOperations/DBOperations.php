@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.21
+Version : v0.22
 */
 
 class DBOperations {
@@ -168,7 +168,7 @@ class DBOperations {
                         }
                     }
                     if(!empty($updatedata)){
-                        $result['status']=$this->log('update',$table,$id,$updatedata,$ref,$parent_id);
+                        $result=$this->log('update',$table,$id,$updatedata,$ref,$parent_id);
                         if($result['status']===true){
                             $parent_id=$parent_id===NULL?$result['parent_id']:$parent_id;
                         }
