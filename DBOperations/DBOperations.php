@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.20
+Version : v0.21
 */
 
 class DBOperations {
