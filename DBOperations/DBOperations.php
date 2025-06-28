@@ -176,6 +176,7 @@ class DBOperations {
                 }
             }
         }
+        return $parent_id;
     }
 
     public function log_delete($table, $where, $ref,$parent_id=NULL) {
