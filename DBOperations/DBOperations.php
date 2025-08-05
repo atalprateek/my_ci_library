@@ -195,7 +195,6 @@ class DBOperations {
 
     public function log($operation, $table, $primaryKey, $updatedata, $ref,$parent_id=NULL) {
         $user=$this->getuser();
-        print_pre($user,true);
         $data = [
             'operation' => $operation,
             'table_name' => $table,
