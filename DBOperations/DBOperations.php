@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : DBOperations
 Description : DBOperations for Codeigniter 3
-Version : v0.22
+Version : v0.23
 */
 
 class DBOperations {
@@ -195,6 +195,7 @@ class DBOperations {
 
     public function log($operation, $table, $primaryKey, $updatedata, $ref,$parent_id=NULL) {
         $user=$this->getuser();
+        print_pre($user,true);
         $data = [
             'operation' => $operation,
             'table_name' => $table,
@@ -223,19 +224,19 @@ class DBOperations {
             $user=getuser(false);
         }
         else{
-            $getuser=$this->CI->account->account->getuser(array("md5(id)"=>$this->CI->session->user));
+            $getuser=$this->CI->account->getuser(array("md5(id)"=>$this->CI->session->user));
             if($getuser['status']==true){
                 $user=$getuser['user'];
             }
         }
         if(empty($user) && method_exists($this->CI, 'post') && !empty($this->CI->post('token'))){
             $token=$this->CI->post('token');
-            $verify=$this->CI->account->verify_token($token);
-            if(!empty($verify) && is_array($verify)){
-                $user=$verify;
+            $getuserid=$this->CI->db->get_where('tokens',['token'=>$token,'status'=>1]);
+            if($getuserid->num_rows()>0){
+                $user=array('id'=>$getuserid->unbuffered_row()->user_id);
             }
         }
-        elseif(empty($user)){
+        if(empty($user)){
             $user['id']=-1;
         }
         return $user;
