@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Amount
 Description : Amount Operations
-Version : v1.13
+Version : v1.14
 */
 class Amount {
 	private $ones=array("","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
@@ -100,8 +100,15 @@ class Amount {
         return $crores;
     }
     
-	function to_words($number){
+	function to_words($number,$round=false){
         $number=abs($number);
+        if($round===false){
+            $num_array=explode('.',$number);
+            $number=$num_array[0];
+        }
+        else{
+            $number=round($number);
+        }
         $words='';
 		if($number<1000000000){
 			$words.= $this->get_crores($number)." ".$this->get_lakhs($number)." ";
