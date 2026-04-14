@@ -40,5 +40,11 @@
         "path": "Imager",
         "version": "v0.01",
         "url": "https://raw.githubusercontent.com/atalprateek/my_ci_library/main/Imager/Imager.php"
+    },
+    {
+        "name": "Cachemanager",
+        "path": "Cachemanager",
+        "version": "v1.0",
+        "url": "https://raw.githubusercontent.com/atalprateek/my_ci_library/main/Cachemanager/Cachemanager.php"
     }
 ]
