@@ -46,5 +46,11 @@
         "path": "Cachemanager",
         "version": "v1.0",
         "url": "https://raw.githubusercontent.com/atalprateek/my_ci_library/main/Cachemanager/Cachemanager.php"
+    },
+    {
+        "name": "Template",
+        "path": "Template",
+        "version": "v1.0",
+        "url": "https://raw.githubusercontent.com/atalprateek/my_ci_library/main/Template/Template.php"
     }
 ]
