@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Template Manager
 Description : Template Manager for Codeigniter 3
-Version : v1.0
+Version : v1.1
 */
 
 
@@ -12,6 +12,11 @@ class Template {
     protected $CI;
     protected $template;
 	var $isAdmin=FALSE;
+	protected $styles=array("link"=>array(),"file"=>array(),"theme"=>array());
+	protected $top_script=array("link"=>array(),"file"=>array(),"theme"=>array());
+	protected $content_script=array("link"=>array(),"file"=>array(),"theme"=>array());
+	protected $bottom_script=array("link"=>array(),"file"=>array(),"theme"=>array());
+    protected $includes=array('styles','top_script','content_script','bottom_script');
 
     public function __construct()
     {
@@ -28,12 +33,55 @@ class Template {
             $root='admin/';
         }
         // Page content
-        $data['content'] = $this->CI->load->view($root."$folder/$view", $data, TRUE);
+        if($type=='page'){
+            $data['content'] = $this->CI->load->view($root."$folder/$view", $data, TRUE);
+        }
+        elseif($type=='auth-default'){
+            $data['content'] = $this->CI->load->view("templates/{$this->template}/$folder/$view", $data, TRUE);
+            $type='auth';
+        }
+        else{
+            $data['content'] = $this->CI->load->view($root."$folder/$view", $data, TRUE);
+        }
         $data['page_type'] = $type;
 
+        if(!empty($this->includes)){
+            foreach($this->includes as $include){
+                if(!empty($data[$include])){ 
+                    $includes=$data[$include];
+                    foreach($includes as $key=>$single){
+                        if(is_array($single)){
+                            foreach($single as $single2){
+                                if(array_search($single2,$this->{$include}[$key])===false)
+                                    $this->{$include}[$key][]=$single2;
+                            }
+                        }
+                        else{
+                            if(array_search($single,$this->{$include}[$key])===false)
+                                $this->{$include}[$key][]=$single;
+                        }
+                    }
+                }
+            }
+        }
+		
+		if(isset($data['datatable']) && $data['datatable']===true){
+            if(method_exists($this, 'loaddatatable')){
+                $this->loaddatatable();
+            }
+		}
+		if(isset($data['alertify']) && $data['alertify']===true){
+            if(method_exists($this, 'loadalertify')){
+                $this->loadalertify();
+            }
+		}
         // Load layout
         $layout = "templates/{$this->template}/layout";
 
+        $data['styles']=$this->styles;
+		$data['top_script']=$this->top_script;
+		$data['content_script']=$this->content_script;
+		$data['bottom_script']=$this->bottom_script;
         if ($return) {
             return $this->CI->load->view($layout, $data, TRUE);
         } else {
