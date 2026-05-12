@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Template Manager
 Description : Template Manager for Codeigniter 3
-Version : v1.1
+Version : v1.2
 */
 
 
@@ -65,6 +65,9 @@ class Template {
             }
         }
 		
+        if(method_exists($this, 'loadtoastr')){
+            $this->loadtoastr();
+		}
 		if(isset($data['datatable']) && $data['datatable']===true){
             if(method_exists($this, 'loaddatatable')){
                 $this->loaddatatable();
