@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Template Manager
 Description : Template Manager for Codeigniter 3
-Version : v1.2
+Version : v1.3
 */
 
 
@@ -68,9 +68,17 @@ class Template {
         if(method_exists($this, 'loadtoastr')){
             $this->loadtoastr();
 		}
-		if(isset($data['datatable']) && $data['datatable']===true){
+		if(isset($data['datatable']) && ($data['datatable']===true || $data['datatable']==='export')){
             if(method_exists($this, 'loaddatatable')){
                 $this->loaddatatable();
+            }
+            if($data['datatable']==='export'){
+                $data['datatableexport']=true;
+            }
+		}
+		if(isset($data['datatableexport']) && $data['datatableexport']===true){
+            if(method_exists($this, 'loaddatatableexport')){
+                $this->loaddatatableexport();
             }
 		}
 		if(isset($data['alertify']) && $data['alertify']===true){
