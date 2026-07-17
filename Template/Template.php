@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Template Manager
 Description : Template Manager for Codeigniter 3
-Version : v1.4
+Version : v1.5
 */
 
 
@@ -12,6 +12,7 @@ class Template {
     protected $CI;
     protected $template;
 	var $isAdmin=FALSE;
+	var $sidebarPath=FALSE;
 	protected $styles=array("link"=>array(),"file"=>array(),"theme"=>array());
 	protected $top_script=array("link"=>array(),"file"=>array(),"theme"=>array());
 	protected $content_script=array("link"=>array(),"file"=>array(),"theme"=>array());
@@ -22,6 +23,16 @@ class Template {
     {
         $this->CI =& get_instance();
         $this->template = $this->CI->config->item('template');
+    }
+
+    public function config($data)
+    {
+        if(isset($data['isAdmin'])){
+            $this->isAdmin=$data['isAdmin'];
+        }
+        if(isset($data['sidebar_path'])){
+            $this->sidebarPath=$data['sidebar_path'];
+        }
     }
 
     /**
@@ -111,7 +122,9 @@ class Template {
     public function partial($name, $data = [], $return = FALSE)
     {
         $path = "templates/{$this->template}/partials/$name";
-
+        if($name=='sidebar' && $this->sidebarPath!==false){
+            $path=$this->sidebarPath;
+        }
         // Fallback to default if not found
         if (!file_exists(APPPATH . "views/$path.php")) {
             $path = "templates/default/partials/$name";
