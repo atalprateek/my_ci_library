@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Template Manager
 Description : Template Manager for Codeigniter 3
-Version : v1.5
+Version : v1.6
 */
 
 
@@ -100,6 +100,16 @@ class Template {
 		if(isset($data['switchery']) && $data['switchery']===true){
             if(method_exists($this, 'loadswitchery')){
                 $this->loadswitchery();
+            }
+		}
+		if(isset($data['select2']) && $data['select2']===true){
+            if(method_exists($this, 'loadselect2')){
+                $this->loadselect2();
+            }
+		}
+		if(isset($data['tomselect']) && $data['tomselect']===true){
+            if(method_exists($this, 'loadtomselect')){
+                $this->loadtomselect();
             }
 		}
         // Load layout
