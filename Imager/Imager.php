@@ -3,7 +3,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 Name : Imager
 Description : Image Manipulation Using Image Intervention
-Version : v1.1
+Version : v1.2
 */
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -116,6 +116,54 @@ class Imager {
         return $image;
         //$newImagePath = './encoded_' . basename($path);
         //$this->saveImage($image,$newImagePath);
+    }
+
+    /**
+     * Convert an image to another file type and save it to the destination path.
+     * Supported types: jpg/jpeg, png, gif, webp, avif, and bmp.
+     */
+    public function convertImage($path,$fileType,$destination,$quality=80){
+        if(empty($destination)){
+            return array('status'=>false,'message'=>'Destination path is required!');
+        }
+
+        $image = $this->readImage($path);
+        if(empty($image)){
+            return array('status'=>false,'message'=>'Image type not supported!');
+        }
+
+        $fileType = strtolower(ltrim(trim($fileType), '.'));
+        switch($fileType){
+            case 'jpg':
+            case 'jpeg':
+                $image = $image->toJpeg($quality);
+                break;
+            case 'png':
+                $image = $image->toPng();
+                break;
+            case 'gif':
+                $image = $image->toGif();
+                break;
+            case 'webp':
+                $image = $image->toWebp($quality);
+                break;
+            case 'avif':
+                $image = $image->toAvif($quality);
+                break;
+            case 'bmp':
+                $image = $image->toBmp();
+                break;
+            default:
+                return array('status'=>false,'message'=>'Image type not supported!');
+        }
+
+        $directory = dirname($destination);
+        if($directory !== '.' && !is_dir($directory) && !mkdir($directory, 0777, true) && !is_dir($directory)){
+            return array('status'=>false,'message'=>'Unable to create destination directory!');
+        }
+
+        $image->save($destination);
+        return trim($destination,'./');
     }
     
     public function resizeImage($path,$size,$quality=80){
