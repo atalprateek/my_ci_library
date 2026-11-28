@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 Name : Paging
 Description : Custom Pagination
-Version : v1.11
+Version : v1.12
 */
 
 
@@ -194,10 +194,13 @@ HTML;
         }
         $result=['pagedata'=>$pagedata];
 		$pagination=$this->pagination();
+		$pagebuttons=$pagination['pagebuttons'];
+		$pagination=$pagination['pagination'];
 		if($this->style){
 			$pagination=$this->paginationstyle().$pagination;
 		}
         $result['pagination']=$pagination;
+        $result['pagebuttons']=$pagebuttons;
         //echo PRE;print_r($array);die;
         return $result;
 	}
@@ -205,6 +208,7 @@ HTML;
 	public function pagination(){
 		if($this->config){
 			$pagination="";
+			$pagebtns=array();
 			if($this->pages>1){
 				if($this->display_type=="individual"){
 					$pagination="";
@@ -219,9 +223,11 @@ HTML;
 			
 				if(array_search("firstlast",$this->display_links)!==false && $this->page!=1){
 					$pagination.=$this->createpagelinks(1,$this->firstlast['first'],false,$this->li_class,$this->link_class);
+					$pagebtns[] = $this->createpagebuttons(1,$this->firstlast['first']);
 				}
 				if(array_search("skip",$this->display_links)!==false && $this->page-$this->skip['num']>0){
 					$pagination.=$this->createpagelinks($this->page-$this->skip['num'],$this->skip['skip_prev'],false,$this->li_class,$this->link_class);
+					$pagebtns[] = $this->createpagebuttons($this->page-$this->skip['num'],$this->skip['skip_prev']);
 				}
 				if(array_search("prevnext",$this->display_links)!==false){
                     if($this->page==1 && $this->prevnextstatus=='hide'){
@@ -230,9 +236,11 @@ HTML;
                         $prev_class=$this->link_class;
                         $prev_class[]="disabled";
                         $pagination.=$this->createpagelinks($this->page-1,$this->prevnext['prev'],false,$this->li_class,$prev_class);
+						$pagebtns[] = $this->createpagebuttons($this->page-1,$this->prevnext['prev'],false);
                     }
                     else{
                         $pagination.=$this->createpagelinks($this->page-1,$this->prevnext['prev'],false,$this->li_class,$this->link_class);
+						$pagebtns[] = $this->createpagebuttons($this->page-1,$this->prevnext['prev']);
                     }
 				}
 				if(array_search("pages",$this->display_links)!==false){
@@ -240,29 +248,35 @@ HTML;
 						if($i<=$this->num_links || $i>$this->pages-$this->num_links || ($i>$this->page-$this->num_links && $i<$this->page+$this->num_links)){
 							if($i==$this->page){ $current=true; }else{ $current=false; }
 							$pagination.=$this->createpagelinks($i,$i,$current,$this->li_class,$this->num_class);
+							$pagebtns[] = $this->createpagebuttons($i,$i,true,$current);
 						}
 						elseif($i==$this->num_links+1 || $i==$this->pages-$this->num_links){
 							$pagination.=$this->createpagelinks("","...",$current,$this->li_class,$this->num_class);
+							$pagebtns[] = $this->createpagebuttons("","...",true,$current);
 						}
 					}
 				}
 				if(array_search("prevnext",$this->display_links)!==false){
-                    if($this->page==$this->pages && $this->prevnextstatus=='hide'){
+                    if($this->page>=$this->pages && $this->prevnextstatus=='hide'){
                     }
                     elseif($this->page==$this->pages && $this->prevnextstatus=='disabled'){
                         $next_class=$this->link_class;
                         $next_class[]="disabled";
                         $pagination.=$this->createpagelinks(NULL,$this->prevnext['next'],false,$this->li_class,$next_class);
+						$pagebtns[] = $this->createpagebuttons(NULL,$this->prevnext['next'],false);
                     }
                     else{
                         $pagination.=$this->createpagelinks($this->page+1,$this->prevnext['next'],false,$this->li_class,$this->link_class);
+						$pagebtns[] = $this->createpagebuttons($this->page+1,$this->prevnext['next']);
                     }
 				}
 				if(array_search("skip",$this->display_links)!==false && $this->pages-$this->page>=$this->skip['num']){
 					$pagination.=$this->createpagelinks($this->page+$this->skip['num'],$this->skip['skip_next'],false,$this->li_class,$this->link_class);
+					$pagebtns[] = $this->createpagebuttons($this->page+$this->skip['num'],$this->skip['skip_next']);
 				}
 				if(array_search("firstlast",$this->display_links)!==false && $this->page!=$this->pages){
 					$pagination.=$this->createpagelinks($this->pages,$this->firstlast['last'],false,$this->li_class,$this->link_class);
+					$pagebtns[] = $this->createpagebuttons($this->pages,$this->firstlast['last']);
 				}
 				if($this->display_type!="individual"){
 					$pagination.="</ul>";
@@ -287,7 +301,8 @@ HTML;
                 $page_size=form_dropdown('page_size',$this->sizes,$this->count,array('class'=>'form-control radius-0 page_size','style'=>"width:auto;"));
             }
             $pagination='<div class="pagination-div" style="min-height:60px;"><div class="showpage">'.$page_size.'<div class="pagination-info">'.$showing.'</div></div>'.$pagination.'</div>';
-			return $pagination;
+			$result=array('pagination'=>$pagination,'pagebuttons'=>$pagebtns);
+			return $result;
 		}
 		else{
 			echo "Please add Paging Configuration!";
@@ -340,6 +355,32 @@ HTML;
 			$pagelink.="</ul> ";
 		}
 		return $pagelink;
+	}
+	public function createpagebuttons($page,$text,$status=true,$current=false){
+		if(is_array($this->pagefilters)){
+            $pagefilters=$this->pagefilters;
+            if($this->page_type=='parameter'){
+                $pagefilters['page']=$page;
+            }
+            if(!empty($pagefilters)){
+                $pagefilters=http_build_query($pagefilters);
+                $pagefilters="?".$pagefilters;
+            }
+            else{
+                $pagefilters='';
+            }
+		}
+		$url='#';
+		if(!empty($page)){
+            if($this->page_type=='uri'){
+                $url=$this->url."page/".$page."/".$pagefilters;
+            }
+            else{
+                $url=$this->url.$pagefilters;
+            }
+		}
+		$button=array('text'=>$text,'url'=>$url,'status'=>$status,'active'=>$current);
+		return $button;
 	}
 	
 }
